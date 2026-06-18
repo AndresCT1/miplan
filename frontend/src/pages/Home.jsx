@@ -44,29 +44,14 @@ function PlansSkeleton() {
 // ── NAVBAR ────────────────────────────────────────────────────────────────────
 function HomeNav() {
   const navigate = useNavigate()
-  const { selectedPlans } = useCompare()
   return (
     <nav className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 py-3">
-      <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
+      <div className="max-w-5xl mx-auto">
         <button
           onClick={() => navigate('/')}
           className="text-blue-600 font-extrabold text-xl tracking-tight"
         >
           MiPlan<span className="text-gray-900">.pe</span>
-        </button>
-
-        <button
-          onClick={() => navigate('/comparar')}
-          className="flex items-center gap-2 text-sm font-semibold text-blue-700
-                     hover:text-blue-900 transition-colors min-h-[44px] px-2"
-        >
-          {selectedPlans.length > 0 && (
-            <span className="bg-blue-600 text-white text-xs w-5 h-5 rounded-full
-                             flex items-center justify-center font-bold">
-              {selectedPlans.length}
-            </span>
-          )}
-          ↕ Comparar planes
         </button>
       </div>
     </nav>
@@ -150,6 +135,79 @@ function TrustBar() {
         ))}
       </div>
     </div>
+  )
+}
+
+// ── GUÍA DE COMPARACIÓN — visible solo sin planes seleccionados ───────────────
+const COMPARE_STEPS = [
+  {
+    num: '1',
+    icon: '📡',
+    title: 'Elige un operador',
+    desc:  'Claro, Movistar, WOW, WIN o Mi Fibra',
+  },
+  {
+    num: '2',
+    icon: '⚖️',
+    title: 'Toca "Comparar" en los planes',
+    desc:  'Elige hasta 3 planes que te interesen',
+  },
+  {
+    num: '3',
+    icon: '📊',
+    title: 'Ve la comparación',
+    desc:  'Precio, velocidad y beneficios juntos',
+  },
+]
+
+function CompareGuideSection() {
+  const { selectedPlans } = useCompare()
+  if (selectedPlans.length > 0) return null
+
+  return (
+    <section className="px-4 pb-2 pt-8 bg-white" aria-label="Cómo comparar planes">
+      <div className="max-w-5xl mx-auto">
+        <div className="bg-blue-50 rounded-2xl px-6 py-8">
+          <div className="text-center mb-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+              ¿Quieres comparar planes?
+            </h2>
+            <p className="text-base text-gray-500 max-w-md mx-auto">
+              Selecciona hasta 3 planes de cualquier operador y los comparamos por ti
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-0">
+            {COMPARE_STEPS.map(({ num, icon, title, desc }, i) => (
+              <div key={num} className="flex sm:contents items-center gap-4 sm:gap-0">
+                {/* Paso */}
+                <div className="flex flex-col items-center text-center gap-2 sm:px-6">
+                  <div className="w-14 h-14 rounded-full bg-blue-600 text-white
+                                  flex items-center justify-center text-xl font-extrabold
+                                  shadow-md shadow-blue-200">
+                    {num}
+                  </div>
+                  <span className="text-2xl" aria-hidden="true">{icon}</span>
+                  <p className="text-base font-bold text-gray-800 leading-tight max-w-[130px]">
+                    {title}
+                  </p>
+                  <p className="text-sm text-gray-500 max-w-[130px] leading-snug">{desc}</p>
+                </div>
+
+                {/* Flecha entre pasos */}
+                {i < COMPARE_STEPS.length - 1 && (
+                  <span className="text-blue-400 text-3xl font-light sm:self-start sm:mt-5
+                                   rotate-90 sm:rotate-0 flex-shrink-0"
+                        aria-hidden="true">
+                    →
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -269,6 +327,7 @@ function FeaturedPlansSection() {
                 plan={plan}
                 operatorName={plan.operator_name}
                 operatorId={plan.operator_id}
+                operatorSlug={plan.operator_slug}
                 brandColor={plan.brand_color}
                 mostPopular={plan.operator_slug === 'claro'}
                 ctaLabel={`Ver planes de ${plan.operator_name}`}
@@ -476,6 +535,7 @@ export default function Home() {
       <HomeNav />
       <HeroSection />
       <TrustBar />
+      <CompareGuideSection />
       <OperatorsSection />
       <HowItWorksSection />
       <FeaturedPlansSection />

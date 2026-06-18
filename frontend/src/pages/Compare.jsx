@@ -292,6 +292,30 @@ export default function Compare() {
           Precios referenciales sujetos a disponibilidad en tu zona.
           Un asesor confirmará el precio final antes de la instalación.
         </p>
+
+        {/* Sección fallback — asesor humano */}
+        <div className="mt-12 rounded-2xl bg-blue-50 px-6 py-8 text-center">
+          <p className="text-2xl font-bold text-gray-900 mb-2">
+            ¿Ninguno te convenció?
+          </p>
+          <p className="text-base text-gray-500 mb-6 max-w-md mx-auto">
+            Un asesor real te ayuda a elegir el plan ideal según tu zona,
+            presupuesto y cuántas personas usan el internet en tu hogar.
+            Sin costo y sin compromiso.
+          </p>
+          <button
+            onClick={() => navigate('/contacto')}
+            className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600
+                       hover:bg-blue-700 text-white font-bold rounded-xl
+                       text-base min-h-[56px] transition-colors shadow-md shadow-blue-200
+                       active:scale-95"
+          >
+            Hablar con un asesor →
+          </button>
+          <p className="text-sm text-gray-400 mt-4">
+            Te llamamos hoy · Lunes a sábado de 9am a 7pm
+          </p>
+        </div>
       </main>
     </div>
   )

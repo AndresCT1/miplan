@@ -1,10 +1,15 @@
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCompare } from '../../context/CompareContext'
+
+// Tooltip solo en la primera tarjeta que se renderiza por sesión
+let _tooltipClaimed = false
 
 export default function PlanCard({
   plan,
   operatorName = '',
   operatorId   = null,
+  operatorSlug = '',
   brandColor   = null,
   mostPopular  = false,
   ctaLabel     = null,
@@ -16,8 +21,23 @@ export default function PlanCard({
   const { id, name, speed_mbps, price, features = [], is_featured } = plan
   const color = brandColor || '#2563EB'
 
-  const isSelected  = isPlanSelected(id)
-  const maxReached  = selectedPlans.length >= 3 && !isSelected
+  const isSelected = isPlanSelected(id)
+  const maxReached = selectedPlans.length >= 3 && !isSelected
+
+  // Tooltip: solo primera tarjeta visible, solo una vez por sesión
+  const [showTooltip, setShowTooltip] = useState(() => {
+    if (_tooltipClaimed) return false
+    if (sessionStorage.getItem('miplan_compare_tip_shown')) return false
+    _tooltipClaimed = true
+    sessionStorage.setItem('miplan_compare_tip_shown', '1')
+    return true
+  })
+
+  useEffect(() => {
+    if (!showTooltip) return
+    const t = setTimeout(() => setShowTooltip(false), 3000)
+    return () => clearTimeout(t)
+  }, [showTooltip])
 
   const handleSelect = () => {
     const params = new URLSearchParams({ plan: id })
@@ -31,14 +51,14 @@ export default function PlanCard({
     if (isSelected) {
       removePlan(id)
     } else {
-      addPlan({ id, name, price, speed_mbps, operatorName, brandColor: color, operatorId })
+      addPlan({ id, name, price, speed_mbps, operatorName, operatorSlug, brandColor: color, operatorId })
     }
+    setShowTooltip(false)
   }
 
   const buttonText      = ctaLabel || 'Quiero este plan'
   const showFeaturedBadge = mostPopular || (is_featured && !brandColor)
 
-  // Borde: azul punteado cuando seleccionado, destaque normal si no
   const cardBorder = isSelected
     ? { borderColor: '#2563EB', borderWidth: '2px', borderStyle: 'dashed' }
     : highlighted
@@ -62,7 +82,6 @@ export default function PlanCard({
         transition-all duration-150 hover:shadow-xl ${cardClass}`}
       style={cardBorder}
     >
-      {/* Badge destacado / más popular */}
       {mostPopular && (
         <div className="text-center text-white text-sm font-bold py-2"
              style={{ backgroundColor: color }}>
@@ -79,7 +98,6 @@ export default function PlanCard({
       <div className="px-6 pb-6 flex flex-col gap-4"
            style={{ paddingTop: showFeaturedBadge ? '1rem' : '1.5rem' }}>
 
-        {/* Badge de operador — solo en sección destacados de Home */}
         {brandColor && operatorName && !mostPopular && (
           <span className="self-start text-xs font-bold px-3 py-1 rounded-full"
             style={{ backgroundColor: `${color}18`, color }}>
@@ -102,16 +120,12 @@ export default function PlanCard({
         <div className="flex items-center justify-center gap-2 py-3 rounded-xl"
              style={{ backgroundColor: `${color}12` }}>
           <span className="text-2xl" aria-hidden="true">⚡</span>
-          <span className="text-3xl font-extrabold" style={{ color }}>
-            {speed_mbps}
-          </span>
+          <span className="text-3xl font-extrabold" style={{ color }}>{speed_mbps}</span>
           <span className="text-lg font-semibold text-gray-500">Mbps</span>
         </div>
-        <p className="text-sm text-center text-gray-400 -mt-2">
-          velocidad de internet
-        </p>
+        <p className="text-sm text-center text-gray-400 -mt-2">velocidad de internet</p>
 
-        {/* 3. NOMBRE DEL PLAN */}
+        {/* 3. NOMBRE */}
         <h3 className="text-lg font-semibold text-gray-700 text-center leading-tight">
           {name}
         </h3>
@@ -138,26 +152,52 @@ export default function PlanCard({
           {buttonText}
         </button>
 
-        {/* 6. Botón comparar */}
-        <button
-          onClick={handleCompareToggle}
-          disabled={maxReached}
-          title={maxReached ? 'Máximo 3 planes a la vez' : ''}
-          className={`w-full rounded-xl text-sm font-semibold min-h-[48px]
-                      transition-all duration-150 border
-                      ${isSelected
-                        ? 'bg-blue-50 text-blue-700 border-blue-300'
-                        : maxReached
-                          ? 'bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed'
-                          : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100 hover:text-gray-700'
-                      }`}
-        >
-          {isSelected
-            ? '✓ Agregado a comparar'
-            : maxReached
-              ? 'Máximo 3 planes'
-              : '+ Agregar a comparar'}
-        </button>
+        {/* 6. Botón comparar con tooltip */}
+        <div className="relative">
+          {showTooltip && (
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 z-20
+                            bg-blue-600 text-white text-sm font-semibold px-4 py-2.5
+                            rounded-xl shadow-lg whitespace-nowrap
+                            animate-bounce pointer-events-none">
+              ¡Toca aquí para comparar con otros planes!
+              <span className="absolute top-full left-1/2 -translate-x-1/2 mt-0
+                               border-l-[6px] border-r-[6px] border-t-[6px]
+                               border-l-transparent border-r-transparent border-t-blue-600" />
+            </div>
+          )}
+
+          <button
+            onClick={handleCompareToggle}
+            disabled={maxReached}
+            title={maxReached ? 'Máximo 3 planes a la vez' : ''}
+            aria-label={isSelected ? 'Quitar de comparación' : 'Agregar a comparación'}
+            className={`w-full rounded-xl font-semibold min-h-[48px]
+                        transition-all duration-150 flex items-center justify-center gap-2
+                        ${isSelected
+                          ? 'bg-blue-50 text-blue-700 border-2 border-blue-400 border-dashed'
+                          : maxReached
+                            ? 'bg-gray-50 text-gray-300 border border-gray-100 cursor-not-allowed'
+                            : 'bg-white text-blue-600 border-2 border-blue-300 border-dashed hover:bg-blue-50'
+                        }`}
+          >
+            {isSelected ? (
+              <>
+                <span aria-hidden="true">✓</span>
+                <span>En comparación</span>
+              </>
+            ) : maxReached ? (
+              <>
+                <span aria-hidden="true">⚖️</span>
+                <span>Máximo 3 planes</span>
+              </>
+            ) : (
+              <>
+                <span aria-hidden="true">⚖️</span>
+                <span>Comparar este plan</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </article>
   )

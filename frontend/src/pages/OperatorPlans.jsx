@@ -211,6 +211,7 @@ export default function OperatorPlans() {
                       plan={plan}
                       operatorName={operator?.name}
                       operatorId={operator?.id}
+                      operatorSlug={slug}
                       brandColor={color}
                       highlighted={plan.is_featured}
                     />

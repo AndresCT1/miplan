@@ -43,7 +43,7 @@ export default function PlanCard({
     const params = new URLSearchParams({ plan: id })
     if (operatorId) params.set('operator', operatorId)
     navigate(`/contacto?${params}`, {
-      state: { planName: name, operatorName, price, speed_mbps },
+      state: { planName: name, operatorName, operatorSlug, price, speed_mbps, brandColor: color },
     })
   }
 

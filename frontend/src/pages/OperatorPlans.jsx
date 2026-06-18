@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom'
 import { useOperators } from '../hooks/useOperators'
 import { usePlans }     from '../hooks/usePlans'
@@ -61,7 +61,8 @@ export default function OperatorPlans() {
   const { slug }  = useParams()
   const location  = useLocation()
   const navigate  = useNavigate()
-  const [activeTab, setActiveTab] = useState('internet')
+  const [activeTab, setActiveTab]       = useState('internet')
+  const [headerLogoFailed, setHeaderLogoFailed] = useState(false)
 
   const { operators } = useOperators()
   const operator = location.state?.operator ?? operators.find((o) => o.slug === slug)
@@ -112,10 +113,22 @@ export default function OperatorPlans() {
 
           {operator && (
             <div className="flex items-center gap-3 ml-1">
-              <div className="w-11 h-11 rounded-full bg-white/20 border-2 border-white/50
-                              flex items-center justify-center
-                              text-white text-xl font-extrabold shrink-0">
-                {operator.name.charAt(0).toUpperCase()}
+              {/* Logo del operador en el header */}
+              <div className="w-16 h-16 bg-white rounded-xl p-1.5 shadow-sm
+                              flex items-center justify-center shrink-0">
+                {!headerLogoFailed ? (
+                  <img
+                    src={`/logos/${operator.slug}.png`}
+                    alt={`Logo de ${operator.name}`}
+                    className="w-full h-full object-contain"
+                    onError={() => setHeaderLogoFailed(true)}
+                  />
+                ) : (
+                  <span className="text-xl font-extrabold"
+                        style={{ color: operator.brand_color }}>
+                    {operator.name.charAt(0).toUpperCase()}
+                  </span>
+                )}
               </div>
               <h1 className="text-xl sm:text-2xl font-bold text-white leading-tight">
                 {operator.name}

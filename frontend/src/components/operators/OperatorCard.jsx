@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export default function OperatorCard({ operator }) {
   const navigate = useNavigate()
+  const [logoFailed, setLogoFailed] = useState(false)
 
   const handleClick = () => {
     navigate(`/operador/${operator.slug}`, { state: { operator } })
@@ -18,15 +20,27 @@ export default function OperatorCard({ operator }) {
       tabIndex={0}
       aria-label={`Ver planes de ${operator.name}`}
     >
-      {/* Círculo con inicial */}
-      <div
-        className="w-16 h-16 rounded-full flex items-center justify-center
-                   text-white text-2xl font-bold select-none"
-        style={{ backgroundColor: operator.brand_color }}
-        aria-hidden="true"
-      >
-        {operator.name.charAt(0).toUpperCase()}
-      </div>
+      {/* Logo del operador con fallback al círculo */}
+      {!logoFailed ? (
+        <div className="w-20 h-20 bg-white rounded-xl p-2 shadow-sm
+                        flex items-center justify-center">
+          <img
+            src={`/logos/${operator.slug}.png`}
+            alt={`Logo de ${operator.name}`}
+            className="w-full h-full object-contain"
+            onError={() => setLogoFailed(true)}
+          />
+        </div>
+      ) : (
+        <div
+          className="w-20 h-20 rounded-full flex items-center justify-center
+                     text-white text-2xl font-bold select-none"
+          style={{ backgroundColor: operator.brand_color }}
+          aria-hidden="true"
+        >
+          {operator.name.charAt(0).toUpperCase()}
+        </div>
+      )}
 
       {/* Nombre */}
       <span className="text-base font-semibold text-gray-800 text-center">
@@ -52,12 +66,9 @@ export default function OperatorCard({ operator }) {
         Ver planes →
       </button>
 
-      {/* Badge precio mínimo */}
+      {/* Precio mínimo */}
       {operator.min_price != null && (
-        <span
-          className="text-sm font-semibold"
-          style={{ color: operator.brand_color }}
-        >
+        <span className="text-sm font-semibold" style={{ color: operator.brand_color }}>
           Desde S/{Number(operator.min_price).toFixed(2)}/mes
         </span>
       )}

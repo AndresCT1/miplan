@@ -1,0 +1,11 @@
+{
+  "watch": ["src"],
+  "ext": "js,json",
+  "ignore": [
+    "src/db/migrations/**",
+    "src/db/seed.js",
+    "src/db/migrate.js"
+  ],
+  "exec": "node src/app.js",
+  "signal": "SIGTERM"
+}

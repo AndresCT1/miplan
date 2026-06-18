@@ -6,7 +6,8 @@ export default function PlanCard({
   operatorId   = null,
   brandColor   = null,
   mostPopular  = false,
-  ctaLabel     = null,    // override del texto del botón
+  ctaLabel     = null,
+  highlighted  = false,   // plan destacado en página de operador
 }) {
   const navigate = useNavigate()
   const { id, name, speed_mbps, price, features = [], is_featured } = plan
@@ -23,15 +24,25 @@ export default function PlanCard({
   const buttonText = ctaLabel || 'Quiero este plan'
   const showFeaturedBadge = mostPopular || (is_featured && !brandColor)
 
+  // Estilos de borde y sombra según modo
+  const cardBorder = highlighted
+    ? { borderColor: color, borderWidth: '2px', borderStyle: 'solid' }
+    : showFeaturedBadge
+      ? { borderColor: color }
+      : {}
+
+  const cardClass = highlighted
+    ? 'shadow-xl'
+    : showFeaturedBadge
+      ? 'shadow-md border-2'
+      : 'shadow-sm border border-gray-100'
+
   return (
     <article
       aria-label={`Plan ${name}, S/${Number(price).toFixed(2)} al mes`}
       className={`relative rounded-2xl bg-white flex flex-col gap-4 overflow-hidden
-        transition-all duration-150 hover:shadow-xl
-        ${showFeaturedBadge
-          ? 'shadow-md border-2'
-          : 'shadow-sm border border-gray-100'}`}
-      style={showFeaturedBadge ? { borderColor: color } : {}}
+        transition-all duration-150 hover:shadow-xl ${cardClass}`}
+      style={cardBorder}
     >
       {/* Badge destacado / más popular */}
       {mostPopular && (

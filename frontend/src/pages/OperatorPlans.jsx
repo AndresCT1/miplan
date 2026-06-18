@@ -4,7 +4,7 @@ import { useOperators } from '../hooks/useOperators'
 import { usePlans }     from '../hooks/usePlans'
 import PlanCard         from '../components/operators/PlanCard'
 
-// ── Categorización de planes ─────────────────────────────────────────────────
+// ── Categorización ────────────────────────────────────────────────────────────
 function categorizePlan(planName) {
   const lower = planName.toLowerCase()
   if (lower.includes('tv') || lower.includes('tvgo')) return 'internet_tv'
@@ -16,10 +16,10 @@ const TABS = [
   { key: 'internet_tv', label: 'Internet + TV'  },
 ]
 
-// ── Skeleton con color del operador ─────────────────────────────────────────
+// ── Skeleton ──────────────────────────────────────────────────────────────────
 function PlansSkeleton({ color }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
       {Array.from({ length: 3 }).map((_, i) => (
         <div key={i} className="rounded-2xl animate-pulse h-96"
              style={{ backgroundColor: `${color}18` }} />
@@ -28,7 +28,7 @@ function PlansSkeleton({ color }) {
   )
 }
 
-// ── Tabs de categoría ────────────────────────────────────────────────────────
+// ── Tabs ──────────────────────────────────────────────────────────────────────
 function CategoryTabs({ tabs, activeTab, onChange, brandColor }) {
   return (
     <div className="flex flex-col sm:flex-row gap-2 mb-8" role="tablist">
@@ -48,9 +48,7 @@ function CategoryTabs({ tabs, activeTab, onChange, brandColor }) {
             }
           >
             {label}{' '}
-            <span style={isActive ? { opacity: 0.75 } : { opacity: 0.6 }}>
-              ({count})
-            </span>
+            <span style={isActive ? { opacity: 0.75 } : { opacity: 0.6 }}>({count})</span>
           </button>
         )
       })}
@@ -58,11 +56,11 @@ function CategoryTabs({ tabs, activeTab, onChange, brandColor }) {
   )
 }
 
-// ── Página principal ─────────────────────────────────────────────────────────
+// ── Página principal ──────────────────────────────────────────────────────────
 export default function OperatorPlans() {
-  const { slug }   = useParams()
-  const location   = useLocation()
-  const navigate   = useNavigate()
+  const { slug }  = useParams()
+  const location  = useLocation()
+  const navigate  = useNavigate()
   const [activeTab, setActiveTab] = useState('internet')
 
   const { operators } = useOperators()
@@ -70,37 +68,39 @@ export default function OperatorPlans() {
 
   const { plans, loading, error, refetch } = usePlans(operator?.id)
 
-  const color   = operator?.brand_color || '#2563EB'
-  const bgPage  = `${color}0F`   // ~6% opacity — fondo de página
-  const bgLight = `${color}08`   // ~3% — fondo de cards zona
+  const color  = operator?.brand_color || '#2563EB'
+  const bgPage = `${color}0F`
 
-  // Categorizar y filtrar planes
+  // Categorizar planes
   const categorized = useMemo(() => {
     const groups = { internet: [], internet_tv: [] }
     plans.forEach(p => groups[categorizePlan(p.name)].push(p))
     return groups
   }, [plans])
 
-  // Tabs visibles: solo los que tengan planes
+  // Tabs visibles
   const visibleTabs = TABS
     .map(t => ({ ...t, count: categorized[t.key]?.length ?? 0 }))
     .filter(t => t.count > 0)
 
-  // Si el tab activo quedó vacío tras cargar (ej: todos son internet_tv), ajustar
   const currentTab = visibleTabs.find(t => t.key === activeTab)
     ? activeTab
     : visibleTabs[0]?.key ?? 'internet'
 
-  const visiblePlans = categorized[currentTab] ?? []
+  // Ordenar: destacado primero, luego precio ascendente
+  const sortedPlans = useMemo(() => {
+    return [...(categorized[currentTab] ?? [])].sort((a, b) => {
+      if (b.is_featured !== a.is_featured) return b.is_featured ? 1 : -1
+      return Number(a.price) - Number(b.price)
+    })
+  }, [categorized, currentTab])
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: bgPage }}>
 
-      {/* ── HEADER CON COLOR DEL OPERADOR ──────────────────────────────────── */}
+      {/* ── HEADER ──────────────────────────────────────────────────────────── */}
       <header style={{ backgroundColor: color }}>
         <div className="max-w-5xl mx-auto px-4 py-5 flex items-center gap-4">
-
-          {/* Botón volver */}
           <button
             onClick={() => navigate('/')}
             className="flex items-center gap-2 text-white/90 hover:text-white
@@ -112,7 +112,6 @@ export default function OperatorPlans() {
 
           {operator && (
             <div className="flex items-center gap-3 ml-1">
-              {/* Círculo grande con inicial */}
               <div className="w-11 h-11 rounded-full bg-white/20 border-2 border-white/50
                               flex items-center justify-center
                               text-white text-xl font-extrabold shrink-0">
@@ -125,50 +124,41 @@ export default function OperatorPlans() {
           )}
         </div>
 
-        {/* ── BREADCRUMB ─────────────────────────────────────────────────── */}
+        {/* Breadcrumb */}
         <div className="max-w-5xl mx-auto px-4 pb-4">
-          <nav aria-label="Ubicación" className="flex items-center gap-1.5 text-sm text-white/70">
+          <nav aria-label="Ubicación"
+               className="flex items-center gap-1.5 text-sm text-white/70">
             <Link to="/" className="hover:text-white transition-colors">Inicio</Link>
             <span aria-hidden="true">›</span>
-            <span className="text-white/90 font-medium">
-              {operator?.name ?? slug}
-            </span>
+            <span className="text-white/90 font-medium">{operator?.name ?? slug}</span>
             <span aria-hidden="true">›</span>
             <span className="text-white font-semibold">Planes</span>
           </nav>
         </div>
       </header>
 
-      {/* ── CONTENIDO ──────────────────────────────────────────────────────── */}
+      {/* ── CONTENIDO ───────────────────────────────────────────────────────── */}
       <main className="max-w-5xl mx-auto px-4 py-10">
 
-        {/* Cargando */}
         {loading && <PlansSkeleton color={color} />}
 
-        {/* Error */}
         {error && (
           <div className="text-center py-16">
             <p className="text-red-500 text-lg mb-4">{error}</p>
-            <button
-              onClick={refetch}
+            <button onClick={refetch}
               className="px-6 py-3 border-2 rounded-xl text-gray-600 border-gray-300
-                         hover:bg-white transition-colors min-h-[48px]"
-            >
+                         hover:bg-white transition-colors min-h-[48px]">
               Reintentar
             </button>
           </div>
         )}
 
-        {/* Planes cargados */}
         {!loading && !error && plans.length > 0 && (
           <>
-            {/* Título de sección */}
             <h2 className="text-2xl font-bold text-gray-800 mb-6">
-              Planes de{' '}
-              <span style={{ color }}>{operator?.name}</span>
+              Planes de <span style={{ color }}>{operator?.name}</span>
             </h2>
 
-            {/* Tabs de categoría */}
             {visibleTabs.length > 1 && (
               <CategoryTabs
                 tabs={visibleTabs}
@@ -178,17 +168,40 @@ export default function OperatorPlans() {
               />
             )}
 
-            {/* Grid de planes */}
-            {visiblePlans.length > 0 ? (
+            {sortedPlans.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {visiblePlans.map((plan) => (
-                  <PlanCard
+                {sortedPlans.map((plan) => (
+                  /*
+                   * Wrapper relativo: gestiona el badge flotante, el mt-6
+                   * y el scale sin afectar overflow-hidden de PlanCard.
+                   */
+                  <div
                     key={plan.id}
-                    plan={plan}
-                    operatorName={operator?.name}
-                    operatorId={operator?.id}
-                    brandColor={color}
-                  />
+                    className={`relative transition-transform duration-150
+                      ${plan.is_featured
+                        ? 'mt-6 sm:scale-105 z-10'
+                        : ''}`}
+                  >
+                    {/* Badge flotante "El más pedido" */}
+                    {plan.is_featured && (
+                      <div
+                        className="absolute -top-4 left-1/2 -translate-x-1/2
+                                   z-20 whitespace-nowrap text-white text-sm
+                                   font-bold px-4 py-1 rounded-full shadow-md"
+                        style={{ backgroundColor: color }}
+                      >
+                        ⭐ El más pedido
+                      </div>
+                    )}
+
+                    <PlanCard
+                      plan={plan}
+                      operatorName={operator?.name}
+                      operatorId={operator?.id}
+                      brandColor={color}
+                      highlighted={plan.is_featured}
+                    />
+                  </div>
                 ))}
               </div>
             ) : (
@@ -201,7 +214,6 @@ export default function OperatorPlans() {
           </>
         )}
 
-        {/* Sin planes */}
         {!loading && !error && plans.length === 0 && (
           <div className="text-center py-16">
             <p className="text-gray-500 text-lg">

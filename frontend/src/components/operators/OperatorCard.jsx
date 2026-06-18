@@ -18,6 +18,7 @@ export default function OperatorCard({ operator }) {
       tabIndex={0}
       aria-label={`Ver planes de ${operator.name}`}
     >
+      {/* Círculo con inicial */}
       <div
         className="w-16 h-16 rounded-full flex items-center justify-center
                    text-white text-2xl font-bold select-none"
@@ -27,16 +28,19 @@ export default function OperatorCard({ operator }) {
         {operator.name.charAt(0).toUpperCase()}
       </div>
 
+      {/* Nombre */}
       <span className="text-base font-semibold text-gray-800 text-center">
         {operator.name}
       </span>
 
+      {/* Plan count */}
       {operator.plan_count !== undefined && (
         <span className="text-xs text-gray-400">
           {operator.plan_count} planes disponibles
         </span>
       )}
 
+      {/* Botón Ver planes */}
       <button
         className="mt-1 w-full py-2 rounded-lg text-white text-sm font-medium
                    transition-opacity hover:opacity-90"
@@ -47,6 +51,16 @@ export default function OperatorCard({ operator }) {
       >
         Ver planes →
       </button>
+
+      {/* Badge precio mínimo */}
+      {operator.min_price != null && (
+        <span
+          className="text-sm font-semibold"
+          style={{ color: operator.brand_color }}
+        >
+          Desde S/{Number(operator.min_price).toFixed(2)}/mes
+        </span>
+      )}
     </div>
   )
 }

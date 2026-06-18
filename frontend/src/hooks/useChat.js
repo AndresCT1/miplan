@@ -1,9 +1,10 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useChat as useChatContext } from '../context/ChatContext'
 import { chatService } from '../services/api'
 
 export function useChat() {
   const { messages, isOpen, isLoading, setIsOpen, setIsLoading, addMessage } = useChatContext()
+  const [inputDisabled, setInputDisabled] = useState(false)
 
   const sendMessage = useCallback(async (text) => {
     const trimmed = text?.trim()
@@ -20,6 +21,12 @@ export function useChat() {
 
       const result = await chatService.sendMessage(trimmed, history)
       addMessage('assistant', result.response)
+
+      if (result.action === 'SAVE_LEAD') {
+        setInputDisabled(true)
+        setTimeout(() => setInputDisabled(false), 3000)
+      }
+
       return result
     } catch {
       addMessage('assistant', 'Lo siento, tuve un problema. ¿Te conecto con un asesor?')
@@ -29,5 +36,5 @@ export function useChat() {
     }
   }, [messages, isLoading, addMessage, setIsLoading])
 
-  return { messages, isOpen, isLoading, setIsOpen, sendMessage }
+  return { messages, isOpen, isLoading, inputDisabled, setIsOpen, sendMessage }
 }

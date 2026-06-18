@@ -3,19 +3,20 @@ import { useNavigate } from 'react-router-dom'
 import { useChat }    from '../../hooks/useChat'
 import { useCompare } from '../../context/CompareContext'
 
+const WA_URL = 'https://wa.me/51920170692'
+
 const WELCOME_MSG = {
   role: 'welcome',
-  content: '¡Hola! 👋 Soy el asesor virtual de MiPlan.pe\nTe ayudo a encontrar el mejor plan de internet para tu hogar en Arequipa.\n¿Qué operador te interesa o cuánto quieres pagar?',
+  content: '¡Hola! 👋 Soy el asesor virtual de MiPlan.pe\nTe ayudo a encontrar el mejor plan de internet para tu hogar en Arequipa en menos de 2 minutos.\n\n¿Qué es más importante para ti?',
   id: 0,
   ts: Date.now(),
 }
 
 const QUICK_REPLIES = [
-  { label: 'Claro',    text: 'claro' },
-  { label: 'Movistar', text: 'movistar' },
-  { label: 'WOW',      text: 'wow' },
-  { label: 'WIN',      text: 'win' },
-  { label: 'Mi Fibra', text: 'mi fibra' },
+  { label: '💰 El precio',      text: 'quiero el plan más económico' },
+  { label: '⚡ La velocidad',   text: 'quiero el plan más rápido' },
+  { label: '📺 Internet + TV',  text: 'quiero internet con TV' },
+  { label: '🤷 No sé, ayúdame', text: 'no sé qué plan elegir, ayúdame' },
 ]
 
 function formatTime(ts) {
@@ -70,26 +71,43 @@ function ChatBubble({ msg }) {
   )
 }
 
-export default function ChatWidget() {
-  const navigate                        = useNavigate()
-  const { messages, isOpen, isLoading, setIsOpen, sendMessage } = useChat()
-  const { selectedPlans }               = useCompare()
-  const hasBar                          = selectedPlans.length > 0
-  const [input, setInput]               = useState('')
-  const [hasUnread, setHasUnread]       = useState(true)
-  const [lastAction, setLastAction]     = useState(null)
-  const [lastActionData, setLastActionData] = useState(null)
-  const [showWelcome, setShowWelcome]   = useState(true)
-  const messagesEndRef                  = useRef(null)
-  const inputRef                        = useRef(null)
-  const prevLenRef                      = useRef(0)
+function LeadSuccessCard() {
+  return (
+    <div className="mt-1 mb-3 p-4 bg-green-50 border border-green-200 rounded-2xl">
+      <p className="text-sm font-extrabold text-green-700 mb-0.5">✅ ¡Registro exitoso!</p>
+      <p className="text-xs text-green-600 mb-3">Te llamamos en menos de 2 horas</p>
+      <a
+        href={WA_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center justify-center gap-2 w-full py-2.5
+                   bg-green-500 hover:bg-green-600 text-white text-xs
+                   font-semibold rounded-xl transition-colors"
+      >
+        💬 WhatsApp mientras tanto
+      </a>
+    </div>
+  )
+}
 
-  // Auto-scroll
+export default function ChatWidget() {
+  const navigate  = useNavigate()
+  const { messages, isOpen, isLoading, inputDisabled, setIsOpen, sendMessage } = useChat()
+  const { selectedPlans } = useCompare()
+  const hasBar    = selectedPlans.length > 0
+
+  const [input, setInput]           = useState('')
+  const [hasUnread, setHasUnread]   = useState(true)
+  const [lastAction, setLastAction] = useState(null)
+  const [showWelcome, setShowWelcome] = useState(true)
+  const messagesEndRef = useRef(null)
+  const inputRef       = useRef(null)
+  const prevLenRef     = useRef(0)
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, isLoading, showWelcome])
+  }, [messages, isLoading, lastAction])
 
-  // Badge when closed and new assistant message arrives
   useEffect(() => {
     if (!isOpen && messages.length > prevLenRef.current) {
       const last = messages[messages.length - 1]
@@ -107,7 +125,7 @@ export default function ChatWidget() {
 
   const handleSend = useCallback(async (text) => {
     const msg = text ?? input
-    if (!msg.trim() || isLoading) return
+    if (!msg.trim() || isLoading || inputDisabled) return
     setInput('')
     setShowWelcome(false)
     setLastAction(null)
@@ -120,9 +138,8 @@ export default function ChatWidget() {
       setIsOpen(false)
     } else if (result.action) {
       setLastAction(result.action)
-      setLastActionData(result.actionData)
     }
-  }, [input, isLoading, sendMessage, navigate, setIsOpen])
+  }, [input, isLoading, inputDisabled, sendMessage, navigate, setIsOpen])
 
   const handleKey = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -136,6 +153,8 @@ export default function ChatWidget() {
     : showWelcome
       ? [WELCOME_MSG, ...messages]
       : messages
+
+  const isInputLocked = isLoading || inputDisabled
 
   return (
     <>
@@ -168,7 +187,7 @@ export default function ChatWidget() {
 
       {/* Ventana del chat */}
       {isOpen && (
-        <div className={`fixed right-6 z-50 w-[360px] h-[500px] rounded-2xl shadow-2xl
+        <div className={`fixed right-6 z-50 w-[360px] h-[520px] rounded-2xl shadow-2xl
                         bg-white flex flex-col overflow-hidden
                         animate-in slide-in-from-bottom-4 fade-in duration-200
                         ${hasBar ? 'bottom-[236px]' : 'bottom-40'}`}>
@@ -197,12 +216,12 @@ export default function ChatWidget() {
           </div>
 
           {/* Mensajes */}
-          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-0">
+          <div className="flex-1 overflow-y-auto px-4 py-3">
             {allMessages.map((msg) => (
               <ChatBubble key={msg.id} msg={msg} />
             ))}
 
-            {/* Botones rápidos bajo bienvenida */}
+            {/* Quick replies bajo bienvenida */}
             {showWelcome && messages.length === 0 && (
               <div className="flex flex-wrap gap-2 mt-1 mb-3">
                 {QUICK_REPLIES.map(({ label, text }) => (
@@ -219,10 +238,16 @@ export default function ChatWidget() {
               </div>
             )}
 
-            {/* Botones según acción */}
+            {/* Acciones del backend */}
             {lastAction === 'SHOW_PLANS' && (
               <div className="flex flex-wrap gap-2 mt-1 mb-3">
-                {QUICK_REPLIES.map(({ label, text }) => (
+                {[
+                  { label: 'Claro',    text: 'claro' },
+                  { label: 'Movistar', text: 'movistar' },
+                  { label: 'WOW',      text: 'wow' },
+                  { label: 'WIN',      text: 'win' },
+                  { label: 'Mi Fibra', text: 'mi fibra' },
+                ].map(({ label, text }) => (
                   <button
                     key={label}
                     onClick={() => handleSend(text)}
@@ -248,6 +273,8 @@ export default function ChatWidget() {
               </div>
             )}
 
+            {lastAction === 'SAVE_LEAD' && <LeadSuccessCard />}
+
             {isLoading && <TypingDots />}
             <div ref={messagesEndRef} />
           </div>
@@ -260,15 +287,20 @@ export default function ChatWidget() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKey}
-              placeholder="Escribe tu consulta..."
+              disabled={isInputLocked}
+              placeholder={inputDisabled ? '✅ ¡Número registrado!' : 'Escribe tu consulta...'}
               maxLength={500}
-              className="flex-1 px-4 py-2.5 bg-gray-50 rounded-xl text-sm text-gray-800
-                         placeholder-gray-400 border border-gray-200 focus:outline-none
-                         focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className={`flex-1 px-4 py-2.5 rounded-xl text-sm text-gray-800
+                         placeholder-gray-400 border focus:outline-none
+                         focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                         transition-colors
+                         ${isInputLocked
+                           ? 'bg-green-50 border-green-200 cursor-not-allowed'
+                           : 'bg-gray-50 border-gray-200'}`}
             />
             <button
               onClick={() => handleSend()}
-              disabled={!input.trim() || isLoading}
+              disabled={!input.trim() || isInputLocked}
               aria-label="Enviar"
               className="w-10 h-10 bg-blue-600 hover:bg-blue-700 disabled:opacity-40
                          text-white rounded-xl flex items-center justify-center

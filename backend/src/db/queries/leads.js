@@ -1,17 +1,18 @@
 import { pool } from '../connection.js'
 
-export async function insertLead({ dni, name, address, phone, operatorId, planId }) {
+export async function insertLead({ dni, name, address, phone, operatorId, planId, chatSummary }) {
   const { rows } = await pool.query(
-    `INSERT INTO leads (dni, name, address, phone, operator_id, plan_id, status)
-     VALUES ($1, $2, $3, $4, $5, $6, 'pending')
+    `INSERT INTO leads (dni, name, address, phone, operator_id, plan_id, status, chat_summary)
+     VALUES ($1, $2, $3, $4, $5, $6, 'pending', $7)
      RETURNING *`,
     [
-      dni     ?? null,
+      dni         ?? null,
       name,
-      address ?? null,
+      address     ?? null,
       phone,
-      operatorId ?? null,
-      planId     ?? null,
+      operatorId  ?? null,
+      planId      ?? null,
+      chatSummary ?? null,
     ]
   )
   return rows[0]

@@ -6,6 +6,7 @@ export const telegramService = {
 
     const lines = [
       '🔔 *Nuevo lead — contactar YA*',
+      lead.chat_summary ? `🏷️ *Fuente:* ${lead.chat_summary}` : null,
       '',
       `📱 *Celular:* ${phone}`,
       `👤 *Nombre:* ${lead.name}`,

@@ -1,6 +1,19 @@
-import { chatService } from '../services/chatService.js'
-import { getAllActive }  from '../db/queries/plans.js'
+import { chatService }  from '../services/chatService.js'
+import { leadService }  from '../services/leadService.js'
+import { getAllActive } from '../db/queries/plans.js'
 import { respond }      from '../utils/respond.js'
+
+function extractNameFromHistory(history) {
+  for (const msg of [...history].reverse()) {
+    if (msg.role !== 'user') continue
+    const text = msg.content.trim()
+    // Mensaje corto de solo letras y espacios — probablemente un nombre
+    if (text.length >= 3 && text.length <= 40 && /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(text)) {
+      return text
+    }
+  }
+  return 'Cliente Chat'
+}
 
 export async function handleChat(req, res) {
   try {
@@ -20,8 +33,18 @@ export async function handleChat(req, res) {
         }))
       : []
 
-    const plans = await getAllActive()
+    const plans  = await getAllActive()
     const result = await chatService.processChat(sanitized, safeHistory, plans)
+
+    // Captura automática de lead cuando se detecta celular
+    if (result.action === 'SAVE_LEAD' && result.actionData?.phone) {
+      const name = extractNameFromHistory(safeHistory)
+      leadService.create({
+        phone:       result.actionData.phone,
+        name,
+        chatSummary: '🤖 Lead por chatbot',
+      }).catch((err) => console.error('[Chat lead] Error al guardar:', err.message))
+    }
 
     respond(res, 200, result)
   } catch (err) {

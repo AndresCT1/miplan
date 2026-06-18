@@ -1,5 +1,7 @@
 import { geminiService } from './geminiService.js'
 
+const PHONE_REGEX = /\b9\d{8}\b/
+
 const PREDEFINED = [
   {
     pattern: /precio|cu[aá]nto|costo/i,
@@ -65,6 +67,19 @@ const PREDEFINED = [
 
 export const chatService = {
   async processChat(message, history, plans) {
+    // 1. Detección de celular — máxima prioridad
+    const phoneMatch = message.match(PHONE_REGEX)
+    if (phoneMatch) {
+      const phone = phoneMatch[0]
+      return {
+        response: `✅ ¡Listo! Un asesor te llamará al ${phone} en menos de 2 horas. ¿Tienes alguna duda más?`,
+        action: 'SAVE_LEAD',
+        actionData: { phone },
+        source: 'phone_detected',
+      }
+    }
+
+    // 2. Respuestas predeterminadas
     for (const entry of PREDEFINED) {
       if (entry.pattern.test(message)) {
         return {
@@ -76,6 +91,7 @@ export const chatService = {
       }
     }
 
+    // 3. Gemini
     try {
       const allMessages = [
         ...history,

@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom'
 import { useOperators } from '../hooks/useOperators'
 import { usePlans }     from '../hooks/usePlans'
@@ -71,6 +71,12 @@ export default function OperatorPlans() {
 
   const color  = operator?.brand_color || '#2563EB'
   const bgPage = `${color}0F`
+
+  useEffect(() => {
+    if (operator?.name) {
+      document.title = `Planes ${operator.name} en Arequipa | MiPlan.pe`
+    }
+  }, [operator?.name])
 
   // Categorizar planes
   const categorized = useMemo(() => {

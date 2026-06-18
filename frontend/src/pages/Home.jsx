@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useOperators }      from '../hooks/useOperators'
 import { useFeaturedPlans }  from '../hooks/useFeaturedPlans'
@@ -530,6 +531,10 @@ function WhatsAppButton() {
 
 // ── Página principal ──────────────────────────────────────────────────────────
 export default function Home() {
+  useEffect(() => {
+    document.title = 'MiPlan.pe — Planes de Internet en Arequipa'
+  }, [])
+
   return (
     <div className="min-h-screen">
       <HomeNav />

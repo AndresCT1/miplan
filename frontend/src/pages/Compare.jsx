@@ -50,6 +50,10 @@ export default function Compare() {
   const idsParam = searchParams.get('ids') || ''
 
   useEffect(() => {
+    document.title = 'Comparar Planes | MiPlan.pe'
+  }, [])
+
+  useEffect(() => {
     const ids = idsParam
       .split(',')
       .map((s) => parseInt(s.trim(), 10))

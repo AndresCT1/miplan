@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSearchParams, useLocation, useNavigate } from 'react-router-dom'
 import ContactForm from '../components/forms/ContactForm'
 
@@ -27,6 +27,10 @@ export default function Contact() {
   const [searchParams] = useSearchParams()
   const navigate       = useNavigate()
   const state          = useLocation().state ?? {}
+
+  useEffect(() => {
+    document.title = 'Solicitar Plan | MiPlan.pe'
+  }, [])
 
   const planId     = parseInt(searchParams.get('plan'), 10)     || null
   const operatorId = parseInt(searchParams.get('operator'), 10) || null

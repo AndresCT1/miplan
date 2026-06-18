@@ -22,8 +22,11 @@ const REQUIRED_ENV = [
 const missing = REQUIRED_ENV.filter((k) => !process.env[k])
 if (missing.length) {
   console.error('❌ Variables de entorno faltantes:', missing.join(', '))
+  console.error('   Configura estas variables en Railway → Variables')
   process.exit(1)
 }
+
+console.log('✅ Variables de entorno OK')
 
 const app = express()
 
@@ -74,8 +77,18 @@ app.use((_req, res) => {
 app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
-app.listen(PORT, () => {
-  console.log(`🚀 MiPlan.pe API corriendo en http://localhost:${PORT}`)
+const server = app.listen(PORT, () => {
+  console.log(`🚀 MiPlan.pe API corriendo en puerto ${PORT}`)
+  console.log(`   NODE_ENV=${process.env.NODE_ENV ?? 'development'}`)
+})
+
+// Graceful shutdown — Railway envía SIGTERM antes de reemplazar el contenedor
+process.on('SIGTERM', () => {
+  console.log('SIGTERM recibido — cerrando servidor...')
+  server.close(() => {
+    console.log('Servidor cerrado correctamente')
+    process.exit(0)
+  })
 })
 
 export default app

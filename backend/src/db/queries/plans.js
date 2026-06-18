@@ -37,3 +37,15 @@ export async function getFeatured() {
   )
   return rows
 }
+
+export async function getAllActive() {
+  const { rows } = await pool.query(
+    `SELECT p.id, p.name, p.speed_mbps, p.price,
+            o.name AS operator_name, o.slug AS operator_slug
+     FROM plans p
+     JOIN operators o ON p.operator_id = o.id
+     WHERE p.active = true AND o.active = true
+     ORDER BY o.name, p.price ASC`
+  )
+  return rows
+}

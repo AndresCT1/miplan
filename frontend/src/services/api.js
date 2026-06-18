@@ -30,7 +30,7 @@ export const leadsService = {
 }
 
 export const chatService = {
-  sendMessage: (messages) => api.post('/chat', { messages }),
+  sendMessage: (message, history = []) => api.post('/chat', { message, history }),
 }
 
 export const adminService = {

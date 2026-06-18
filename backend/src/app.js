@@ -8,6 +8,7 @@ import operatorsRouter from './routes/operators.js'
 import plansRouter     from './routes/plans.js'
 import leadsRouter     from './routes/leads.js'
 import adminRouter     from './routes/admin.js'
+import chatRouter      from './routes/chat.js'
 import { errorHandler } from './middleware/errorHandler.js'
 
 const REQUIRED_ENV = [
@@ -56,7 +57,7 @@ app.use('/api/operators', operatorsRouter)
 app.use('/api/plans',     plansRouter)
 app.use('/api/leads',     leadsRouter)
 app.use('/api/admin',     adminRouter)
-// app.use('/api/chat',   chatRouter)
+app.use('/api/chat',      chatRouter)
 
 app.get('/api/health', (_req, res) => {
   res.json({ success: true, data: { status: 'ok' }, error: null })

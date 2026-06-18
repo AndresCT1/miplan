@@ -8,7 +8,7 @@ export function ChatProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false)
 
   const addMessage = (role, content) =>
-    setMessages((prev) => [...prev, { role, content, id: Date.now() }])
+    setMessages((prev) => [...prev, { role, content, id: Date.now(), ts: Date.now() }])
 
   return (
     <ChatContext.Provider value={{ messages, isOpen, isLoading, setIsOpen, setIsLoading, addMessage }}>

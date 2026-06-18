@@ -1,8 +1,10 @@
 import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AdminProvider } from './context/AdminContext'
-import ProtectedRoute   from './components/admin/ProtectedRoute'
-import AdminLayout      from './components/admin/AdminLayout'
+import { ChatProvider }  from './context/ChatContext'
+import ProtectedRoute    from './components/admin/ProtectedRoute'
+import AdminLayout       from './components/admin/AdminLayout'
+import ChatWidget        from './components/chat/ChatWidget'
 
 // Public pages
 const Home          = lazy(() => import('./pages/Home'))
@@ -22,33 +24,42 @@ function PageLoader() {
   )
 }
 
+function ChatWidgetGuard() {
+  const { pathname } = useLocation()
+  if (pathname.startsWith('/admin')) return null
+  return <ChatWidget />
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <AdminProvider>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            {/* Public */}
-            <Route path="/"               element={<Home />} />
-            <Route path="/operador/:slug" element={<OperatorPlans />} />
-            <Route path="/contacto"       element={<Contact />} />
+        <ChatProvider>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* Public */}
+              <Route path="/"               element={<Home />} />
+              <Route path="/operador/:slug" element={<OperatorPlans />} />
+              <Route path="/contacto"       element={<Contact />} />
 
-            {/* Admin — public */}
-            <Route path="/admin/login"    element={<AdminLogin />} />
+              {/* Admin — public */}
+              <Route path="/admin/login"    element={<AdminLogin />} />
 
-            {/* Admin — protected, nested under AdminLayout */}
-            <Route path="/admin" element={
-              <ProtectedRoute>
-                <AdminLayout />
-              </ProtectedRoute>
-            }>
-              <Route index        element={<Dashboard />} />
-              <Route path="leads" element={<Leads />} />
-            </Route>
+              {/* Admin — protected, nested under AdminLayout */}
+              <Route path="/admin" element={
+                <ProtectedRoute>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }>
+                <Route index        element={<Dashboard />} />
+                <Route path="leads" element={<Leads />} />
+              </Route>
 
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+            <ChatWidgetGuard />
+          </Suspense>
+        </ChatProvider>
       </AdminProvider>
     </BrowserRouter>
   )

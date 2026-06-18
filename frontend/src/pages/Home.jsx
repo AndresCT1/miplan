@@ -179,6 +179,7 @@ function FeaturedPlansSection() {
                 operatorId={plan.operator_id}
                 brandColor={plan.brand_color}
                 mostPopular={plan.operator_slug === 'claro'}
+                ctaLabel={`Ver planes de ${plan.operator_name}`}
               />
             ))}
           </div>

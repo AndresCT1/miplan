@@ -36,11 +36,11 @@ Ningún componente visual sale sin tu aprobación.
 ## Identidad de marca por operador
 ```js
 const OPERATORS = {
-  movistar: { color: '#009900', bg: '#F0FFF0', textOnBg: '#166534' },
+  movistar: { color: '#00A8E0', bg: '#E8F7FD', textOnBg: '#0C5F7A' },
   claro:    { color: '#DA291C', bg: '#FFF1F0', textOnBg: '#991B1B' },
-  wow:      { color: '#FF6B00', bg: '#FFF7ED', textOnBg: '#9A3412' },
-  win:      { color: '#7B2D8B', bg: '#FAF5FF', textOnBg: '#581C87' },
-  mifibra:  { color: '#0066CC', bg: '#EFF6FF', textOnBg: '#1E40AF' },
+  wow:      { color: '#9B59B6', bg: '#F5EEF8', textOnBg: '#6C3483' },
+  win:      { color: '#FF6B00', bg: '#FFF7ED', textOnBg: '#9A3412' },
+  mifibra:  { color: '#E91E8C', bg: '#FDE7F4', textOnBg: '#8B1057' },
 }
 ```
 

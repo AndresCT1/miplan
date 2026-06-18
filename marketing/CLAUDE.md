@@ -44,11 +44,11 @@ activo más valioso en este mercado.
 ### Paleta de colores de marca por operador
 ```js
 const BRAND_COLORS = {
-  movistar: { primary: '#009900', light: '#F0FFF0', cta: '#007700' },
+  movistar: { primary: '#00A8E0', light: '#E8F7FD', cta: '#0085B2' },
   claro:    { primary: '#DA291C', light: '#FFF1F0', cta: '#B71C1C' },
-  wow:      { primary: '#FF6B00', light: '#FFF7ED', cta: '#E65100' },
-  win:      { primary: '#7B2D8B', light: '#FAF5FF', cta: '#6A1B7A' },
-  mifibra:  { primary: '#0066CC', light: '#EFF6FF', cta: '#0052A3' },
+  wow:      { primary: '#9B59B6', light: '#F5EEF8', cta: '#7D3C98' },
+  win:      { primary: '#FF6B00', light: '#FFF7ED', cta: '#CC5500' },
+  mifibra:  { primary: '#E91E8C', light: '#FDE7F4', cta: '#C01870' },
 }
 ```
 El color del CTA es siempre el `cta` (más oscuro) para garantizar contraste

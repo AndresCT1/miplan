@@ -1,4 +1,4 @@
-import { getByOperator, getCompare } from '../db/queries/plans.js'
+import { getByOperator, getCompare, getFeatured } from '../db/queries/plans.js'
 import { respond } from '../utils/respond.js'
 
 export async function getPlansByOperator(req, res, next) {
@@ -31,6 +31,15 @@ export async function comparePlans(req, res, next) {
     }
 
     const plans = await getCompare(ids)
+    respond(res, 200, plans)
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function getFeaturedPlans(req, res, next) {
+  try {
+    const plans = await getFeatured()
     respond(res, 200, plans)
   } catch (err) {
     next(err)

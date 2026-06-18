@@ -22,6 +22,7 @@ export const operatorsService = {
 export const plansService = {
   getByOperator: (id) => api.get(`/plans/${id}`),
   compare: (ids)      => api.get(`/plans/compare?ids=${ids.join(',')}`),
+  getFeatured: ()     => api.get('/plans/featured'),
 }
 
 export const leadsService = {

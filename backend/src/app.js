@@ -27,6 +27,8 @@ if (missing.length) {
 
 const app = express()
 
+app.set('trust proxy', 1)
+
 // ── Seguridad ────────────────────────────────────────────────────────────────
 app.use(helmet({
   contentSecurityPolicy: {

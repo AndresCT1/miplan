@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useChat } from '../../hooks/useChat'
+import { useChat }    from '../../hooks/useChat'
+import { useCompare } from '../../context/CompareContext'
 
 const WELCOME_MSG = {
   role: 'welcome',
@@ -72,6 +73,8 @@ function ChatBubble({ msg }) {
 export default function ChatWidget() {
   const navigate                        = useNavigate()
   const { messages, isOpen, isLoading, setIsOpen, sendMessage } = useChat()
+  const { selectedPlans }               = useCompare()
+  const hasBar                          = selectedPlans.length > 0
   const [input, setInput]               = useState('')
   const [hasUnread, setHasUnread]       = useState(true)
   const [lastAction, setLastAction]     = useState(null)
@@ -139,10 +142,11 @@ export default function ChatWidget() {
       {/* Botón flotante */}
       <button
         onClick={() => setIsOpen((v) => !v)}
-        aria-label="Abrir asesor virtual"
-        className="fixed bottom-24 right-6 z-50 w-14 h-14 bg-blue-600 hover:bg-blue-700
-                   rounded-full flex items-center justify-center shadow-lg shadow-blue-300/40
-                   transition-all duration-150 hover:scale-110 active:scale-95"
+        aria-label={isOpen ? 'Cerrar asesor virtual' : 'Abrir asesor virtual'}
+        className={`fixed right-6 z-50 w-14 h-14 bg-blue-600 hover:bg-blue-700
+                    rounded-full flex items-center justify-center shadow-lg shadow-blue-300/40
+                    transition-all duration-200 hover:scale-110 active:scale-95
+                    ${hasBar ? 'bottom-[168px]' : 'bottom-24'}`}
       >
         {isOpen ? (
           <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -164,9 +168,10 @@ export default function ChatWidget() {
 
       {/* Ventana del chat */}
       {isOpen && (
-        <div className="fixed bottom-40 right-6 z-50 w-[360px] h-[500px] rounded-2xl shadow-2xl
+        <div className={`fixed right-6 z-50 w-[360px] h-[500px] rounded-2xl shadow-2xl
                         bg-white flex flex-col overflow-hidden
-                        animate-in slide-in-from-bottom-4 fade-in duration-200">
+                        animate-in slide-in-from-bottom-4 fade-in duration-200
+                        ${hasBar ? 'bottom-[236px]' : 'bottom-40'}`}>
 
           {/* Header */}
           <div className="bg-blue-600 px-4 py-3 flex items-center gap-3 flex-shrink-0">

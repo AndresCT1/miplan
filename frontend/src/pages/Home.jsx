@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useOperators }      from '../hooks/useOperators'
 import { useFeaturedPlans }  from '../hooks/useFeaturedPlans'
+import { useCompare }        from '../context/CompareContext'
 import OperatorCard          from '../components/operators/OperatorCard'
 import PlanCard              from '../components/operators/PlanCard'
 
@@ -37,6 +38,38 @@ function PlansSkeleton() {
         <div key={i} className="rounded-2xl bg-gray-100 animate-pulse h-80" />
       ))}
     </div>
+  )
+}
+
+// ── NAVBAR ────────────────────────────────────────────────────────────────────
+function HomeNav() {
+  const navigate = useNavigate()
+  const { selectedPlans } = useCompare()
+  return (
+    <nav className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 py-3">
+      <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
+        <button
+          onClick={() => navigate('/')}
+          className="text-blue-600 font-extrabold text-xl tracking-tight"
+        >
+          MiPlan<span className="text-gray-900">.pe</span>
+        </button>
+
+        <button
+          onClick={() => navigate('/comparar')}
+          className="flex items-center gap-2 text-sm font-semibold text-blue-700
+                     hover:text-blue-900 transition-colors min-h-[44px] px-2"
+        >
+          {selectedPlans.length > 0 && (
+            <span className="bg-blue-600 text-white text-xs w-5 h-5 rounded-full
+                             flex items-center justify-center font-bold">
+              {selectedPlans.length}
+            </span>
+          )}
+          ↕ Comparar planes
+        </button>
+      </div>
+    </nav>
   )
 }
 
@@ -409,8 +442,11 @@ function FooterSection() {
 
 // ── WhatsApp flotante — esquina inferior DERECHA ───────────────────────────────
 function WhatsAppButton() {
+  const { selectedPlans } = useCompare()
+  const hasBar = selectedPlans.length > 0
   return (
-    <div className="group fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
+    <div className={`group fixed right-4 sm:right-6 z-50 transition-all duration-300
+                     ${hasBar ? 'bottom-[88px] sm:bottom-[88px]' : 'bottom-4 sm:bottom-6'}`}>
       {/* Tooltip desktop */}
       <span className="absolute bottom-full right-0 mb-2 px-3 py-1.5 rounded-lg
                        bg-gray-900 text-white text-xs font-medium whitespace-nowrap
@@ -437,6 +473,7 @@ function WhatsAppButton() {
 export default function Home() {
   return (
     <div className="min-h-screen">
+      <HomeNav />
       <HeroSection />
       <TrustBar />
       <OperatorsSection />

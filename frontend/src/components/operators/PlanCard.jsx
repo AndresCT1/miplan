@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useCompare } from '../../context/CompareContext'
 
 export default function PlanCard({
   plan,
@@ -7,11 +8,16 @@ export default function PlanCard({
   brandColor   = null,
   mostPopular  = false,
   ctaLabel     = null,
-  highlighted  = false,   // plan destacado en página de operador
+  highlighted  = false,
 }) {
   const navigate = useNavigate()
+  const { addPlan, removePlan, isPlanSelected, selectedPlans } = useCompare()
+
   const { id, name, speed_mbps, price, features = [], is_featured } = plan
   const color = brandColor || '#2563EB'
+
+  const isSelected  = isPlanSelected(id)
+  const maxReached  = selectedPlans.length >= 3 && !isSelected
 
   const handleSelect = () => {
     const params = new URLSearchParams({ plan: id })
@@ -21,21 +27,33 @@ export default function PlanCard({
     })
   }
 
-  const buttonText = ctaLabel || 'Quiero este plan'
+  const handleCompareToggle = () => {
+    if (isSelected) {
+      removePlan(id)
+    } else {
+      addPlan({ id, name, price, speed_mbps, operatorName, brandColor: color, operatorId })
+    }
+  }
+
+  const buttonText      = ctaLabel || 'Quiero este plan'
   const showFeaturedBadge = mostPopular || (is_featured && !brandColor)
 
-  // Estilos de borde y sombra según modo
-  const cardBorder = highlighted
-    ? { borderColor: color, borderWidth: '2px', borderStyle: 'solid' }
-    : showFeaturedBadge
-      ? { borderColor: color }
-      : {}
+  // Borde: azul punteado cuando seleccionado, destaque normal si no
+  const cardBorder = isSelected
+    ? { borderColor: '#2563EB', borderWidth: '2px', borderStyle: 'dashed' }
+    : highlighted
+      ? { borderColor: color, borderWidth: '2px', borderStyle: 'solid' }
+      : showFeaturedBadge
+        ? { borderColor: color }
+        : {}
 
-  const cardClass = highlighted
-    ? 'shadow-xl'
-    : showFeaturedBadge
-      ? 'shadow-md border-2'
-      : 'shadow-sm border border-gray-100'
+  const cardClass = isSelected
+    ? 'shadow-md border-2'
+    : highlighted
+      ? 'shadow-xl'
+      : showFeaturedBadge
+        ? 'shadow-md border-2'
+        : 'shadow-sm border border-gray-100'
 
   return (
     <article
@@ -69,7 +87,7 @@ export default function PlanCard({
           </span>
         )}
 
-        {/* 1. PRECIO — protagonista absoluto */}
+        {/* 1. PRECIO */}
         <div className="text-center">
           <div className="flex items-start justify-center gap-1">
             <span className="text-xl font-bold mt-2" style={{ color }}>S/</span>
@@ -80,7 +98,7 @@ export default function PlanCard({
           <p className="text-base text-gray-400 mt-1">al mes</p>
         </div>
 
-        {/* 2. VELOCIDAD — segundo elemento en importancia */}
+        {/* 2. VELOCIDAD */}
         <div className="flex items-center justify-center gap-2 py-3 rounded-xl"
              style={{ backgroundColor: `${color}12` }}>
           <span className="text-2xl" aria-hidden="true">⚡</span>
@@ -98,7 +116,7 @@ export default function PlanCard({
           {name}
         </h3>
 
-        {/* 4. FEATURES — iconos + texto mínimo text-base */}
+        {/* 4. FEATURES */}
         <ul className="flex flex-col gap-2.5 flex-1">
           {features.map((f, i) => (
             <li key={i} className="flex items-start gap-2.5 text-base text-gray-600">
@@ -109,7 +127,7 @@ export default function PlanCard({
           ))}
         </ul>
 
-        {/* 5. CTA — ancho completo, 56px mínimo */}
+        {/* 5. CTA principal */}
         <button
           onClick={handleSelect}
           className="w-full rounded-xl text-white font-bold text-lg
@@ -118,6 +136,27 @@ export default function PlanCard({
           style={{ backgroundColor: color }}
         >
           {buttonText}
+        </button>
+
+        {/* 6. Botón comparar */}
+        <button
+          onClick={handleCompareToggle}
+          disabled={maxReached}
+          title={maxReached ? 'Máximo 3 planes a la vez' : ''}
+          className={`w-full rounded-xl text-sm font-semibold min-h-[48px]
+                      transition-all duration-150 border
+                      ${isSelected
+                        ? 'bg-blue-50 text-blue-700 border-blue-300'
+                        : maxReached
+                          ? 'bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed'
+                          : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100 hover:text-gray-700'
+                      }`}
+        >
+          {isSelected
+            ? '✓ Agregado a comparar'
+            : maxReached
+              ? 'Máximo 3 planes'
+              : '+ Agregar a comparar'}
         </button>
       </div>
     </article>

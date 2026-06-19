@@ -58,23 +58,6 @@ function PlansSkeleton() {
   )
 }
 
-// ── NAVBAR ────────────────────────────────────────────────────────────────────
-function HomeNav() {
-  const navigate = useNavigate()
-  return (
-    <nav className="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 py-3">
-      <div className="max-w-5xl mx-auto">
-        <button
-          onClick={() => navigate('/')}
-          className="text-blue-600 font-extrabold text-xl tracking-tight"
-        >
-          MiPlan<span className="text-gray-900">.pe</span>
-        </button>
-      </div>
-    </nav>
-  )
-}
-
 // ── SECCIÓN 1 — Hero ──────────────────────────────────────────────────────────
 function HeroSection() {
   return (
@@ -578,7 +561,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      <HomeNav />
       <HeroSection />
       <RevealSection>
         <OfferBanner />

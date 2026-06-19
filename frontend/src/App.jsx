@@ -8,6 +8,7 @@ import AdminLayout         from './components/admin/AdminLayout'
 import ChatWidget          from './components/chat/ChatWidget'
 import PlanCompareBar      from './components/operators/PlanCompareBar'
 import ScrollToTop         from './components/ScrollToTop'
+import Navbar              from './components/layout/Navbar'
 
 // Public pages
 const Home          = lazy(() => import('./pages/Home'))
@@ -26,6 +27,20 @@ function PageLoader() {
       <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
     </div>
   )
+}
+
+// Navbar solo en páginas públicas
+function NavbarGuard() {
+  const { pathname } = useLocation()
+  if (pathname.startsWith('/admin')) return null
+  return <Navbar />
+}
+
+// pt-16 compensa el navbar fijo en páginas públicas
+function ContentWrapper({ children }) {
+  const { pathname } = useLocation()
+  if (pathname.startsWith('/admin')) return children
+  return <div className="pt-16">{children}</div>
 }
 
 function ChatWidgetGuard() {
@@ -47,29 +62,32 @@ export default function App() {
         <CompareProvider>
           <ChatProvider>
             <ScrollToTop />
+            <NavbarGuard />
             <Suspense fallback={<PageLoader />}>
-              <Routes>
-                {/* Public */}
-                <Route path="/"               element={<Home />} />
-                <Route path="/operador/:slug" element={<OperatorPlans />} />
-                <Route path="/contacto"       element={<Contact />} />
-                <Route path="/comparar"       element={<Compare />} />
+              <ContentWrapper>
+                <Routes>
+                  {/* Public */}
+                  <Route path="/"               element={<Home />} />
+                  <Route path="/operador/:slug" element={<OperatorPlans />} />
+                  <Route path="/contacto"       element={<Contact />} />
+                  <Route path="/comparar"       element={<Compare />} />
 
-                {/* Admin — public */}
-                <Route path="/admin/login"    element={<AdminLogin />} />
+                  {/* Admin — public */}
+                  <Route path="/admin/login"    element={<AdminLogin />} />
 
-                {/* Admin — protected, nested under AdminLayout */}
-                <Route path="/admin" element={
-                  <ProtectedRoute>
-                    <AdminLayout />
-                  </ProtectedRoute>
-                }>
-                  <Route index        element={<Dashboard />} />
-                  <Route path="leads" element={<Leads />} />
-                </Route>
+                  {/* Admin — protected, nested under AdminLayout */}
+                  <Route path="/admin" element={
+                    <ProtectedRoute>
+                      <AdminLayout />
+                    </ProtectedRoute>
+                  }>
+                    <Route index        element={<Dashboard />} />
+                    <Route path="leads" element={<Leads />} />
+                  </Route>
 
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </ContentWrapper>
               <ChatWidgetGuard />
               <CompareBarGuard />
             </Suspense>

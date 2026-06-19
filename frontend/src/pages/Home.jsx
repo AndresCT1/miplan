@@ -6,6 +6,7 @@ import { useCompare }        from '../context/CompareContext'
 import { useScrollReveal }   from '../hooks/useScrollReveal'
 import OperatorCard          from '../components/operators/OperatorCard'
 import PlanCard              from '../components/operators/PlanCard'
+import OfferBanner           from '../components/home/OfferBanner'
 
 // Clase reutilizable para fade-up al entrar en viewport
 function RevealSection({ children, className = '', tag: Tag = 'div' }) {
@@ -579,6 +580,9 @@ export default function Home() {
     <div className="min-h-screen">
       <HomeNav />
       <HeroSection />
+      <RevealSection>
+        <OfferBanner />
+      </RevealSection>
       <TrustBar />
       <CompareGuideSection />
       <OperatorsSection />

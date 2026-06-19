@@ -124,7 +124,8 @@ export default function OfferBanner() {
         aria-label="Ofertas destacadas"
       >
         {/* ── Slides ──────────────────────────────────────────────────────────── */}
-        <div className="relative h-64 sm:h-52">
+        {/* min-h en mobile evita cortar contenido; altura fija en desktop */}
+        <div className="relative min-h-[280px] sm:h-52">
           {OFFERS.map((offer, i) => {
             const active = i === current
             return (
@@ -132,44 +133,91 @@ export default function OfferBanner() {
                 key={offer.operatorSlug}
                 className="absolute inset-0 transition-opacity duration-500"
                 style={{
-                  opacity:        active ? 1 : 0,
-                  pointerEvents:  active ? 'auto' : 'none',
+                  opacity:         active ? 1 : 0,
+                  pointerEvents:   active ? 'auto' : 'none',
                   backgroundColor: offer.color,
                 }}
                 aria-hidden={!active}
               >
-                {/* Gradiente oscuro overlay */}
+                {/* Gradiente overlay */}
                 <div className="absolute inset-0 pointer-events-none"
-                     style={{ background: 'linear-gradient(135deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.30) 100%)' }} />
+                     style={{ background: 'linear-gradient(135deg,rgba(0,0,0,0.05) 0%,rgba(0,0,0,0.28) 100%)' }} />
 
-                {/* Badge */}
-                <div className="absolute top-3 right-12 sm:right-16
-                                bg-white/20 backdrop-blur-sm text-white
-                                text-xs font-bold px-3 py-1.5 rounded-full
-                                border border-white/30 leading-none">
-                  {offer.badge}
+                {/* ── MOBILE layout (< sm) ─────────────────────────────── */}
+                <div className="relative sm:hidden flex flex-col gap-2
+                                p-5 pb-12">
+                  {/* Badge inline */}
+                  <span className="self-start bg-white/20 text-white text-xs
+                                   font-bold px-2 py-1 rounded-full border
+                                   border-white/30 leading-none">
+                    {offer.badge}
+                  </span>
+
+                  {/* Título */}
+                  <p className="text-white/75 text-xs font-semibold uppercase
+                                tracking-wider leading-none">
+                    {offer.title}
+                  </p>
+
+                  {/* Subtítulo — máx 2 líneas */}
+                  <p className="text-white text-sm font-medium leading-snug
+                                line-clamp-2">
+                    {offer.subtitle}
+                  </p>
+
+                  {/* Precio */}
+                  <div className="flex items-end gap-1">
+                    <span className="text-white/80 text-base font-bold mb-0.5">S/</span>
+                    <span className="text-white text-3xl font-extrabold
+                                     leading-none tabular-nums">
+                      {offer.price}
+                    </span>
+                    <span className="text-white/70 text-sm font-medium mb-0.5">
+                      {offer.priceNote}
+                    </span>
+                  </div>
+                  {offer.regularPrice && (
+                    <p className="text-white/50 text-xs line-through -mt-1">
+                      Precio regular {offer.regularPrice}
+                    </p>
+                  )}
+
+                  {/* CTA */}
+                  <button
+                    onClick={() => navigate(`/operador/${offer.operatorSlug}`)}
+                    className="w-full mt-1 py-3 bg-white rounded-xl font-bold
+                               text-sm min-h-[44px] transition-all duration-200
+                               active:scale-95"
+                    style={{ color: offer.color }}
+                  >
+                    Ver esta oferta →
+                  </button>
                 </div>
 
-                {/* Contenido */}
-                <div className="relative h-full flex flex-col sm:flex-row
-                                items-center gap-4 sm:gap-8
-                                px-6 py-5 sm:px-10">
+                {/* ── DESKTOP layout (≥ sm) ────────────────────────────── */}
+                <div className="relative hidden sm:flex flex-row items-center
+                                gap-8 h-full px-14 py-6">
+
+                  {/* Badge absoluto — desktop */}
+                  <div className="absolute top-3 right-16 bg-white/20 text-white
+                                  text-xs font-bold px-3 py-1.5 rounded-full
+                                  border border-white/30 leading-none">
+                    {offer.badge}
+                  </div>
 
                   {/* Texto */}
-                  <div className="flex-1 text-center sm:text-left min-w-0">
+                  <div className="flex-1 min-w-0">
                     <p className="text-white/75 text-xs font-semibold uppercase
                                   tracking-widest mb-1">
                       {offer.title}
                     </p>
-                    <p className="text-white text-sm sm:text-base font-medium
-                                  leading-snug mb-3">
+                    <p className="text-white text-base font-medium leading-snug mb-3
+                                  line-clamp-2">
                       {offer.subtitle}
                     </p>
-
-                    {/* Precio */}
-                    <div className="flex items-end justify-center sm:justify-start gap-1">
-                      <span className="text-white/80 text-lg font-bold mb-0.5">S/</span>
-                      <span className="text-white text-5xl sm:text-6xl font-extrabold
+                    <div className="flex items-end gap-1">
+                      <span className="text-white/80 text-xl font-bold mb-0.5">S/</span>
+                      <span className="text-white text-5xl font-extrabold
                                        leading-none tabular-nums">
                         {offer.price}
                       </span>
@@ -185,13 +233,13 @@ export default function OfferBanner() {
                   </div>
 
                   {/* CTA */}
-                  <div className="flex-shrink-0 w-full sm:w-auto">
+                  <div className="flex-shrink-0">
                     <button
                       onClick={() => navigate(`/operador/${offer.operatorSlug}`)}
-                      className="w-full sm:w-auto px-7 py-3.5 bg-white rounded-xl
-                                 font-bold text-sm sm:text-base min-h-[48px]
-                                 whitespace-nowrap transition-all duration-200
-                                 hover:scale-105 hover:shadow-lg active:scale-95"
+                      className="px-7 py-3.5 bg-white rounded-xl font-bold
+                                 text-base min-h-[48px] whitespace-nowrap
+                                 transition-all duration-200 hover:scale-105
+                                 hover:shadow-lg active:scale-95"
                       style={{ color: offer.color }}
                     >
                       Ver esta oferta →

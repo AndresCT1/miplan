@@ -25,6 +25,61 @@ function CheckAnim() {
   )
 }
 
+function CountdownTimer({ color }) {
+  const TOTAL_SECS = 2 * 60 * 60
+  const [remaining, setRemaining] = useState(TOTAL_SECS)
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setRemaining((prev) => (prev <= 1 ? 0 : prev - 1))
+    }, 1000)
+    return () => clearInterval(id)
+  }, [])
+
+  const h   = Math.floor(remaining / 3600)
+  const m   = Math.floor((remaining % 3600) / 60)
+  const s   = remaining % 60
+  const pad = (n) => String(n).padStart(2, '0')
+
+  const r            = 44
+  const circumference = 2 * Math.PI * r
+  const dashoffset   = circumference * (1 - remaining / TOTAL_SECS)
+
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+        Te llamamos en:
+      </p>
+      <div className="relative w-32 h-32">
+        <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r={r} fill="none" stroke="#e5e7eb" strokeWidth="6" />
+          <circle
+            cx="50" cy="50" r={r}
+            fill="none"
+            stroke={color}
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={dashoffset}
+            style={{ transition: 'stroke-dashoffset 1s linear' }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span
+            className="text-xl font-extrabold tabular-nums leading-none"
+            style={{ color }}
+            aria-live="polite"
+            aria-label={`${pad(h)} horas ${pad(m)} minutos ${pad(s)} segundos`}
+          >
+            {pad(h)}:{pad(m)}:{pad(s)}
+          </span>
+          <span className="text-[10px] text-gray-400 mt-1">horas</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function SuccessScreen({ name, phone, planName, price, brandColor, operatorSlug, operatorName }) {
   const color     = brandColor || '#2563EB'
   const firstName = name.trim().split(' ')[0]
@@ -41,9 +96,10 @@ function SuccessScreen({ name, phone, planName, price, brandColor, operatorSlug,
         <p className="text-lg text-gray-600 mt-2">
           Te llamamos al{' '}
           <span className="font-extrabold text-gray-900">{phone}</span>
-          {' '}en menos de 2 horas
         </p>
       </div>
+
+      <CountdownTimer color={color} />
 
       {planName && (
         <div className="w-full max-w-sm bg-gray-50 rounded-2xl px-5 py-4 text-left

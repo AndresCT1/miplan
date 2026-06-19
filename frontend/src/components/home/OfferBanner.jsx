@@ -1,6 +1,30 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+function OperatorLogo({ slug, name, color, className = 'w-12 h-12' }) {
+  const [failed, setFailed] = useState(false)
+  if (failed) {
+    return (
+      <div className={`${className} rounded-lg flex items-center justify-center
+                       text-base font-extrabold flex-shrink-0`}
+           style={{ backgroundColor: `${color}30`, color }}>
+        {name?.charAt(0) ?? '?'}
+      </div>
+    )
+  }
+  return (
+    <div className={`${className} bg-white rounded-lg p-1.5 shadow-sm flex-shrink-0
+                     flex items-center justify-center`}>
+      <img
+        src={`/logos/${slug}.png`}
+        alt={name}
+        className="w-full h-full object-contain"
+        onError={() => setFailed(true)}
+      />
+    </div>
+  )
+}
+
 const prefersReducedMotion =
   typeof window !== 'undefined' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -146,12 +170,16 @@ export default function OfferBanner() {
                 {/* ── MOBILE layout (< sm) ─────────────────────────────── */}
                 <div className="relative sm:hidden flex flex-col gap-2
                                 p-5 pb-12">
-                  {/* Badge inline */}
-                  <span className="self-start bg-white/20 text-white text-xs
-                                   font-bold px-2 py-1 rounded-full border
-                                   border-white/30 leading-none">
-                    {offer.badge}
-                  </span>
+                  {/* Logo + badge en fila */}
+                  <div className="flex items-center gap-3">
+                    <OperatorLogo slug={offer.operatorSlug} name={offer.operatorSlug}
+                                  color={offer.color} className="w-12 h-12" />
+                    <span className="bg-white/20 text-white text-xs font-bold
+                                     px-2 py-1 rounded-full border border-white/30
+                                     leading-none">
+                      {offer.badge}
+                    </span>
+                  </div>
 
                   {/* Título */}
                   <p className="text-white/75 text-xs font-semibold uppercase
@@ -204,6 +232,10 @@ export default function OfferBanner() {
                                   border border-white/30 leading-none">
                     {offer.badge}
                   </div>
+
+                  {/* Logo desktop — a la izquierda del texto */}
+                  <OperatorLogo slug={offer.operatorSlug} name={offer.operatorSlug}
+                                color={offer.color} className="w-16 h-16 flex-shrink-0" />
 
                   {/* Texto */}
                   <div className="flex-1 min-w-0">

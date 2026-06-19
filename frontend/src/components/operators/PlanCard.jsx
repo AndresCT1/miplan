@@ -106,30 +106,6 @@ export default function PlanCard({
         ${cardVisible ? 'animate-fade-up' : 'opacity-0'}`}
       style={cardBorder}
     >
-      {/* Botón compartir — esquina superior derecha */}
-      <div className="group/share absolute top-2 right-2 z-20">
-        <button
-          onClick={handleShare}
-          aria-label="Compartir este plan por WhatsApp"
-          className="w-8 h-8 rounded-full bg-white/90 shadow-sm border border-gray-200
-                     flex items-center justify-center text-gray-500
-                     hover:bg-green-50 hover:text-green-600 hover:border-green-200
-                     transition-all duration-150"
-        >
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-            <path d="M11.97 0C5.373 0 0 5.373 0 11.97c0 2.096.546 4.066 1.5 5.775L0 24l6.435-1.687A11.928 11.928 0 0011.97 24c6.598 0 11.97-5.373 11.97-11.97C23.94 5.373 18.567 0 11.97 0zm0 21.818a9.818 9.818 0 01-5.007-1.371l-.359-.214-3.72.975.994-3.624-.234-.372A9.818 9.818 0 012.152 11.97C2.152 6.582 6.582 2.152 11.97 2.152c5.389 0 9.818 4.43 9.818 9.818 0 5.389-4.43 9.848-9.818 9.848z"/>
-          </svg>
-        </button>
-        {/* Tooltip */}
-        <span className="absolute top-full right-0 mt-1.5 px-2 py-1 rounded-lg
-                         bg-gray-900 text-white text-[10px] font-medium whitespace-nowrap
-                         opacity-0 group-hover/share:opacity-100 transition-opacity duration-150
-                         pointer-events-none">
-          Compartir por WhatsApp
-        </span>
-      </div>
-
       {mostPopular && (
         <div className="text-center text-white text-sm font-bold py-2 relative overflow-hidden"
              style={{ backgroundColor: color }}>
@@ -202,7 +178,35 @@ export default function PlanCard({
           ))}
         </ul>
 
-        {/* 5. CTA principal */}
+        {/* 5. Compartir — link de texto, sin ambigüedad de contacto */}
+        <div className="group/share relative self-start -mt-2">
+          <button
+            onClick={handleShare}
+            aria-label="Compartir este plan con un amigo"
+            className="flex items-center gap-1.5 text-xs text-gray-400
+                       hover:text-blue-600 transition-colors duration-150"
+          >
+            {/* Share2 icon — 3 nodos conectados */}
+            <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" strokeWidth={2}
+                 strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+            </svg>
+            <span>Compartir este plan</span>
+          </button>
+          <span className="absolute bottom-full left-0 mb-1.5 px-2 py-1 rounded-lg
+                           bg-gray-900 text-white text-[10px] font-medium whitespace-nowrap
+                           opacity-0 group-hover/share:opacity-100 transition-opacity
+                           duration-150 pointer-events-none">
+            Compartir con un amigo por WhatsApp
+          </span>
+        </div>
+
+        {/* 6. CTA principal */}
         <button
           onClick={handleSelect}
           className="w-full rounded-xl text-white font-bold text-lg

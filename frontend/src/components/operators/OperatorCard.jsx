@@ -54,17 +54,15 @@ export default function OperatorCard({ operator }) {
         </span>
       )}
 
-      {/* Botón Ver planes */}
-      <button
+      {/* Botón Ver planes — onClick manejado por el div padre */}
+      <div
         className="mt-1 w-full py-2 rounded-lg text-white text-sm font-medium
-                   transition-opacity hover:opacity-90"
+                   text-center transition-opacity hover:opacity-90 select-none"
         style={{ backgroundColor: operator.brand_color }}
-        onClick={handleClick}
-        tabIndex={-1}
         aria-hidden="true"
       >
         Ver planes →
-      </button>
+      </div>
 
       {/* Precio mínimo */}
       {operator.min_price != null && (

@@ -14,6 +14,7 @@ export default function PlanCard({
   mostPopular  = false,
   ctaLabel     = null,
   highlighted  = false,
+  onSelect     = null,   // override de navegación cuando viene del contexto de home
 }) {
   const navigate = useNavigate()
   const { addPlan, removePlan, isPlanSelected, selectedPlans } = useCompare()
@@ -40,6 +41,7 @@ export default function PlanCard({
   }, [showTooltip])
 
   const handleSelect = () => {
+    if (onSelect) { onSelect(); return }
     const params = new URLSearchParams({ plan: id })
     if (operatorId) params.set('operator', operatorId)
     navigate(`/contacto?${params}`, {

@@ -305,6 +305,7 @@ function HowItWorksSection() {
 // ── SECCIÓN 3 — Planes destacados ─────────────────────────────────────────────
 function FeaturedPlansSection() {
   const { plans, loading } = useFeaturedPlans()
+  const navigate = useNavigate()
 
   return (
     <section className="py-16 sm:py-20 px-4 bg-white">
@@ -332,6 +333,7 @@ function FeaturedPlansSection() {
                 brandColor={plan.brand_color}
                 mostPopular={plan.operator_slug === 'claro'}
                 ctaLabel={`Ver planes de ${plan.operator_name}`}
+                onSelect={() => navigate(`/operador/${plan.operator_slug}`)}
               />
             ))}
           </div>

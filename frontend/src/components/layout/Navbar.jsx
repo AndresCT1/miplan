@@ -105,6 +105,7 @@ export default function Navbar() {
               )}
             </button>
 
+            <Link to="/nosotros" className={linkClass('/nosotros')}>Nosotros</Link>
             <Link to="/contacto" className={linkClass('/contacto')}>Contacto</Link>
           </nav>
 
@@ -222,6 +223,15 @@ export default function Navbar() {
               </span>
             )}
           </button>
+
+          <Link to="/nosotros" onClick={closeMenu}
+                className={`px-3 py-3 rounded-xl text-base font-medium
+                            min-h-[48px] flex items-center transition-colors
+                            ${isActive('/nosotros')
+                              ? 'bg-blue-50 text-blue-700'
+                              : 'text-gray-700 hover:bg-gray-50'}`}>
+            ℹ️ Nosotros
+          </Link>
 
           <Link to="/contacto" onClick={closeMenu}
                 className={`px-3 py-3 rounded-xl text-base font-medium

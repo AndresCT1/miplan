@@ -11,10 +11,12 @@ import ScrollToTop         from './components/ScrollToTop'
 import Navbar              from './components/layout/Navbar'
 
 // Public pages
-const Home          = lazy(() => import('./pages/Home'))
-const OperatorPlans = lazy(() => import('./pages/OperatorPlans'))
-const Contact       = lazy(() => import('./pages/Contact'))
-const Compare       = lazy(() => import('./pages/Compare'))
+const Home             = lazy(() => import('./pages/Home'))
+const OperatorPlans    = lazy(() => import('./pages/OperatorPlans'))
+const Contact          = lazy(() => import('./pages/Contact'))
+const Compare          = lazy(() => import('./pages/Compare'))
+const FeaturedPlans    = lazy(() => import('./pages/FeaturedPlans'))
+const About            = lazy(() => import('./pages/About'))
 
 // Admin pages
 const AdminLogin    = lazy(() => import('./pages/admin/Login'))
@@ -67,10 +69,12 @@ export default function App() {
               <ContentWrapper>
                 <Routes>
                   {/* Public */}
-                  <Route path="/"               element={<Home />} />
-                  <Route path="/operador/:slug" element={<OperatorPlans />} />
-                  <Route path="/contacto"       element={<Contact />} />
-                  <Route path="/comparar"       element={<Compare />} />
+                  <Route path="/"                    element={<Home />} />
+                  <Route path="/operador/:slug"     element={<OperatorPlans />} />
+                  <Route path="/contacto"           element={<Contact />} />
+                  <Route path="/comparar"           element={<Compare />} />
+                  <Route path="/planes-destacados"  element={<FeaturedPlans />} />
+                  <Route path="/nosotros"           element={<About />} />
 
                   {/* Admin — public */}
                   <Route path="/admin/login"    element={<AdminLogin />} />

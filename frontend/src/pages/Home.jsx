@@ -1,14 +1,11 @@
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useOperators }      from '../hooks/useOperators'
-import { useFeaturedPlans }  from '../hooks/useFeaturedPlans'
-import { useCompare }        from '../context/CompareContext'
-import { useScrollReveal }   from '../hooks/useScrollReveal'
-import OperatorCard          from '../components/operators/OperatorCard'
-import PlanCard              from '../components/operators/PlanCard'
-import OfferBanner           from '../components/home/OfferBanner'
+import { useEffect } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
+import { useOperators }    from '../hooks/useOperators'
+import { useCompare }      from '../context/CompareContext'
+import { useScrollReveal } from '../hooks/useScrollReveal'
+import OperatorCard        from '../components/operators/OperatorCard'
+import OfferBanner         from '../components/home/OfferBanner'
 
-// Fade-up al entrar en viewport
 function RevealSection({ children, className = '', tag: Tag = 'div' }) {
   const { ref, visible } = useScrollReveal()
   return (
@@ -22,7 +19,6 @@ function RevealSection({ children, className = '', tag: Tag = 'div' }) {
   )
 }
 
-// ── Constantes WhatsApp ───────────────────────────────────────────────────────
 const WA_NUMBER  = '51920170692'
 const WA_MESSAGE = 'Hola, vi MiPlan.pe y quiero información sobre planes de internet'
 const WA_URL     = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(WA_MESSAGE)}`
@@ -36,40 +32,17 @@ function WaIcon({ className = 'w-6 h-6' }) {
   )
 }
 
-// ── Skeletons ─────────────────────────────────────────────────────────────────
-function OperatorsSkeleton() {
-  return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="rounded-2xl bg-gray-100 animate-pulse h-56" />
-      ))}
-    </div>
-  )
-}
-
-function PlansSkeleton({ count = 3 }) {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="rounded-2xl bg-gray-100 animate-pulse h-80" />
-      ))}
-    </div>
-  )
-}
-
-// ── SECCIÓN 1 — Hero (con trust integrado) ────────────────────────────────────
+// ── 1. HERO ───────────────────────────────────────────────────────────────────
 function HeroSection() {
   return (
     <section className="relative overflow-hidden pt-14 pb-16 px-4 text-center"
-             style={{
-               background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 40%, #e0f2fe 70%, #f0f9ff 100%)',
-             }}>
+             style={{ background: 'linear-gradient(135deg,#eff6ff 0%,#dbeafe 40%,#e0f2fe 70%,#f0f9ff 100%)' }}>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full opacity-20"
-             style={{ background: 'radial-gradient(circle, #3b82f6, transparent 70%)',
+             style={{ background: 'radial-gradient(circle,#3b82f6,transparent 70%)',
                       animation: 'float-slow 6s ease-in-out infinite' }} />
         <div className="absolute -bottom-10 -right-10 w-96 h-96 rounded-full opacity-15"
-             style={{ background: 'radial-gradient(circle, #06b6d4, transparent 70%)',
+             style={{ background: 'radial-gradient(circle,#06b6d4,transparent 70%)',
                       animation: 'float-slow 8s ease-in-out infinite reverse' }} />
       </div>
 
@@ -103,81 +76,32 @@ function HeroSection() {
             className="w-full sm:w-auto px-8 py-4 rounded-xl text-white font-semibold
                        text-base min-h-[48px] shadow-md transition-all duration-200
                        hover:scale-105 hover:shadow-lg active:scale-95"
-            style={{ background: 'linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)',
+            style={{ background: 'linear-gradient(135deg,#2563eb 0%,#06b6d4 100%)',
                      boxShadow: '0 4px 15px rgba(37,99,235,0.35)' }}
           >
             Ver planes →
           </button>
           <a href={WA_URL} target="_blank" rel="noopener noreferrer"
-             className="w-full sm:w-auto px-8 py-4 border-2 border-blue-600
-                        text-blue-600 hover:bg-blue-50 font-semibold rounded-xl
-                        transition-all duration-200 text-base min-h-[48px]
-                        flex items-center justify-center gap-2 hover:scale-105">
+             className="w-full sm:w-auto px-8 py-4 border-2 border-blue-600 text-blue-600
+                        hover:bg-blue-50 font-semibold rounded-xl transition-all duration-200
+                        text-base min-h-[48px] flex items-center justify-center gap-2 hover:scale-105">
             <WaIcon className="w-5 h-5" />
             Hablar con asesor
           </a>
         </div>
 
-        {/* Trust bar integrado en el hero — sin sección separada */}
         <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2
                         text-sm text-gray-400 pt-4 border-t border-blue-100/60">
-          <span className="flex items-center gap-1.5"><span>✅</span> Asesoría 100% gratuita</span>
-          <span className="flex items-center gap-1.5"><span>🏠</span> +1000 familias asesoradas</span>
-          <span className="flex items-center gap-1.5"><span>⚡</span> Respondemos hoy</span>
+          <span className="flex items-center gap-1.5">✅ Asesoría 100% gratuita</span>
+          <span className="flex items-center gap-1.5">🏠 +1000 familias asesoradas</span>
+          <span className="flex items-center gap-1.5">⚡ Respondemos hoy</span>
         </div>
       </div>
     </section>
   )
 }
 
-// ── GUÍA COMPARADOR — visible solo sin planes seleccionados ───────────────────
-const COMPARE_STEPS = [
-  { num: '1', icon: '📡', title: 'Elige un operador',            desc: 'Claro, Movistar, WOW, WIN o Mi Fibra' },
-  { num: '2', icon: '⚖️', title: 'Toca "Comparar" en los planes', desc: 'Elige hasta 3 planes que te interesen' },
-  { num: '3', icon: '📊', title: 'Ve la comparación',             desc: 'Precio, velocidad y beneficios juntos' },
-]
-
-function CompareGuideSection() {
-  const { selectedPlans } = useCompare()
-  if (selectedPlans.length > 0) return null
-
-  return (
-    <section className="px-4 pt-5 pb-2 bg-white" aria-label="Cómo comparar planes">
-      <div className="max-w-5xl mx-auto">
-        <div className="bg-blue-50 rounded-2xl px-6 py-6">
-          <p className="text-center font-bold text-gray-900 mb-5 text-lg">
-            ¿Quieres comparar planes?{' '}
-            <span className="text-blue-600 font-normal text-base">
-              Selecciona hasta 3 y los comparamos por ti
-            </span>
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-0">
-            {COMPARE_STEPS.map(({ num, icon, title, desc }, i) => (
-              <div key={num} className="flex sm:contents items-center gap-4 sm:gap-0">
-                <div className="flex flex-col items-center text-center gap-1.5 sm:px-6">
-                  <div className="w-12 h-12 rounded-full bg-blue-600 text-white
-                                  flex items-center justify-center text-lg font-extrabold
-                                  shadow-md shadow-blue-200">
-                    {num}
-                  </div>
-                  <span className="text-xl" aria-hidden="true">{icon}</span>
-                  <p className="text-sm font-bold text-gray-800 max-w-[120px] leading-tight">{title}</p>
-                  <p className="text-xs text-gray-500 max-w-[120px]">{desc}</p>
-                </div>
-                {i < COMPARE_STEPS.length - 1 && (
-                  <span className="text-blue-400 text-2xl rotate-90 sm:rotate-0 flex-shrink-0"
-                        aria-hidden="true">→</span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// ── SECCIÓN 2 — Operadores ────────────────────────────────────────────────────
+// ── 2. OPERADORES ─────────────────────────────────────────────────────────────
 function OperatorsSection() {
   const { operators, loading, error, refetch } = useOperators()
 
@@ -193,7 +117,13 @@ function OperatorsSection() {
           </p>
         </RevealSection>
 
-        {loading && <OperatorsSkeleton />}
+        {loading && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="rounded-2xl bg-gray-100 animate-pulse h-56" />
+            ))}
+          </div>
+        )}
         {error && (
           <div className="text-center py-8">
             <p className="text-red-500 mb-3 text-sm">{error}</p>
@@ -215,129 +145,41 @@ function OperatorsSection() {
   )
 }
 
-// ── SECCIÓN 3 — Planes destacados (3 visibles, expandibles) ───────────────────
-const INITIAL_VISIBLE = 3
-
-function FeaturedPlansSection() {
-  const { plans, loading } = useFeaturedPlans()
-  const navigate           = useNavigate()
-  const [showAll, setShowAll] = useState(false)
-
-  const visible = showAll ? plans : plans.slice(0, INITIAL_VISIBLE)
-  const hasMore = plans.length > INITIAL_VISIBLE
-
+// ── 3. MINI-CTA PLANES DESTACADOS ─────────────────────────────────────────────
+function FeaturedPlansCta() {
   return (
-    <section className="py-10 sm:py-12 px-4 bg-gray-50">
+    <RevealSection tag="section" className="py-6 px-4 bg-gray-50">
       <div className="max-w-5xl mx-auto">
-        <RevealSection className="text-center mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
-            Los planes más populares este mes
-          </h2>
-          <p className="text-gray-500 text-sm sm:text-base">
-            Un plan destacado de cada operador, elegidos por nuestros usuarios
-          </p>
-        </RevealSection>
-
-        {loading ? (
-          <PlansSkeleton count={3} />
-        ) : (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {visible.map((plan) => (
-                <PlanCard
-                  key={plan.id}
-                  plan={plan}
-                  operatorName={plan.operator_name}
-                  operatorId={plan.operator_id}
-                  operatorSlug={plan.operator_slug}
-                  brandColor={plan.brand_color}
-                  mostPopular={plan.operator_slug === 'claro'}
-                  ctaLabel={`Ver planes de ${plan.operator_name}`}
-                  onSelect={() => navigate(`/operador/${plan.operator_slug}`)}
-                />
-              ))}
-            </div>
-
-            {hasMore && (
-              <div className="text-center mt-8">
-                <button
-                  onClick={() => setShowAll((v) => !v)}
-                  className="px-6 py-3 rounded-xl border-2 border-gray-200 text-gray-600
-                             font-semibold text-sm hover:border-blue-300 hover:text-blue-600
-                             transition-all duration-200 min-h-[48px]"
-                >
-                  {showAll
-                    ? '↑ Ver menos'
-                    : `Ver ${plans.length - INITIAL_VISIBLE} planes más →`}
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </section>
-  )
-}
-
-// ── SECCIÓN 4 — Por qué MiPlan (fusión de HowItWorks + WhyUs) ────────────────
-const TRUST_POINTS = [
-  {
-    icon: '🔍',
-    bg:   'bg-blue-50',
-    title: 'Comparamos los 5 operadores',
-    desc:  'Claro, Movistar, WOW, WIN y Mi Fibra en un solo lugar. Precios reales, sin letra pequeña.',
-  },
-  {
-    icon: '📞',
-    bg:   'bg-green-50',
-    title: 'Un asesor real te llama hoy',
-    desc:  'No chatbots ni esperas. Te contactamos gratis y coordinamos la instalación a tu medida.',
-  },
-  {
-    icon: '✅',
-    bg:   'bg-cyan-50',
-    title: 'Sin costo, sin permanencia',
-    desc:  'Nuestro servicio es 100% gratuito. Tú decides cuándo y si contratas.',
-  },
-]
-
-function TrustSection() {
-  return (
-    <section className="py-10 sm:py-12 px-4 bg-white">
-      <div className="max-w-4xl mx-auto">
-        <RevealSection className="text-center mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
-            Sin complicaciones, sin sorpresas
-          </h2>
-          <p className="text-gray-500 text-sm sm:text-base">Lo que ves es lo que pagas</p>
-        </RevealSection>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          {TRUST_POINTS.map(({ icon, bg, title, desc }) => (
-            <RevealSection key={title}>
-              <div className="bg-white rounded-2xl p-5 flex flex-col gap-3 h-full
-                              shadow-sm border border-gray-100
-                              hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
-                <div className={`w-14 h-14 rounded-2xl ${bg} flex items-center justify-center`}>
-                  <span className="text-3xl" aria-hidden="true">{icon}</span>
-                </div>
-                <h3 className="text-base font-bold text-gray-900">{title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
-              </div>
-            </RevealSection>
-          ))}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4
+                        bg-white rounded-2xl px-6 py-5 shadow-sm border border-gray-100">
+          <div>
+            <p className="font-bold text-gray-900 text-base">
+              ⭐ Mira los planes más populares de este mes
+            </p>
+            <p className="text-gray-500 text-sm mt-0.5">
+              Un plan destacado de cada operador, elegidos por nuestros usuarios
+            </p>
+          </div>
+          <Link
+            to="/planes-destacados"
+            className="flex-shrink-0 px-5 py-3 bg-blue-600 hover:bg-blue-700
+                       text-white font-semibold text-sm rounded-xl min-h-[44px]
+                       flex items-center transition-colors whitespace-nowrap"
+          >
+            Ver planes destacados →
+          </Link>
         </div>
       </div>
-    </section>
+    </RevealSection>
   )
 }
 
-// ── SECCIÓN 5 — CTA final ─────────────────────────────────────────────────────
+// ── 4. CTA FINAL ──────────────────────────────────────────────────────────────
 function CtaSection() {
   const navigate = useNavigate()
   return (
     <section className="py-12 px-4"
-             style={{ background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #0891b2 100%)' }}>
+             style={{ background: 'linear-gradient(135deg,#1d4ed8 0%,#2563eb 50%,#0891b2 100%)' }}>
       <RevealSection className="max-w-2xl mx-auto text-center">
         <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-3">
           ¿Tienes dudas? Te ayudamos gratis
@@ -348,9 +190,9 @@ function CtaSection() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a href={WA_URL} target="_blank" rel="noopener noreferrer"
              className="w-full sm:w-auto px-8 py-4 bg-green-500 hover:bg-green-600
-                        text-white font-bold rounded-xl transition-all duration-200 text-base
-                        min-h-[52px] flex items-center justify-center gap-2 shadow-lg
-                        hover:scale-105 active:scale-95">
+                        text-white font-bold rounded-xl transition-all duration-200
+                        text-base min-h-[52px] flex items-center justify-center gap-2
+                        shadow-lg hover:scale-105 active:scale-95">
             <WaIcon className="w-5 h-5" />
             WhatsApp ahora
           </a>
@@ -370,7 +212,7 @@ function CtaSection() {
   )
 }
 
-// ── SECCIÓN 6 — Footer ────────────────────────────────────────────────────────
+// ── 5. FOOTER ─────────────────────────────────────────────────────────────────
 function FooterSection() {
   const navigate = useNavigate()
   return (
@@ -381,19 +223,27 @@ function FooterSection() {
             MiPlan<span className="text-blue-400">.pe</span>
           </span>
           <p className="text-sm mt-2 leading-relaxed">
-            Encuentra el mejor plan de internet para tu hogar en Arequipa y todo el Perú.
+            Comparador independiente de planes de internet en Arequipa, Perú.
           </p>
+          <Link to="/nosotros"
+                className="inline-block mt-3 text-xs text-blue-400 hover:text-blue-300
+                           transition-colors underline underline-offset-2">
+            Conoce más sobre nosotros →
+          </Link>
         </div>
         <div>
           <p className="text-white font-semibold text-sm mb-3">Navegación</p>
           <ul className="space-y-2 text-sm">
-            {[['Inicio', '/'], ['Operadores', '/#operadores'], ['Contacto', '/contacto']].map(([label, href]) => (
+            {[
+              ['Inicio', '/'],
+              ['Planes destacados', '/planes-destacados'],
+              ['Comparar planes', '/comparar'],
+              ['Nosotros', '/nosotros'],
+              ['Contacto', '/contacto'],
+            ].map(([label, href]) => (
               <li key={label}>
-                <button
-                  onClick={() => href.startsWith('/#')
-                    ? (navigate('/'), setTimeout(() => document.getElementById('operadores')?.scrollIntoView({ behavior: 'smooth' }), 100))
-                    : navigate(href)}
-                  className="hover:text-white transition-colors">
+                <button onClick={() => navigate(href)}
+                        className="hover:text-white transition-colors text-left">
                   {label}
                 </button>
               </li>
@@ -467,10 +317,8 @@ export default function Home() {
       <RevealSection>
         <OfferBanner />
       </RevealSection>
-      <CompareGuideSection />
       <OperatorsSection />
-      <FeaturedPlansSection />
-      <TrustSection />
+      <FeaturedPlansCta />
       <CtaSection />
       <FooterSection />
       <WhatsAppButton />

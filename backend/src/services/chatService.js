@@ -59,7 +59,7 @@ const PREDEFINED = [
     actionData: null,
   },
   {
-    patterns: ['television', 'televisión', 'cable', ' tv ', 'canales', 'netflix'],
+    patterns: ['television', 'televisión', 'cable', 'tv', 'canales', 'netflix'],
     response: 'Sí, varios operadores tienen planes de Internet + TV con canales digitales. ¿Qué operador te interesa?',
     action: 'SHOW_PLANS',
     actionData: null,

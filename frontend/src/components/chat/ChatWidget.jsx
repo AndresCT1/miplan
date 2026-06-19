@@ -13,10 +13,10 @@ const WELCOME_MSG = {
 }
 
 const QUICK_REPLIES = [
-  { label: '💰 El precio',      text: 'quiero el plan más económico' },
-  { label: '⚡ La velocidad',   text: 'quiero el plan más rápido' },
-  { label: '📺 Internet + TV',  text: 'quiero internet con TV' },
-  { label: '🤷 No sé, ayúdame', text: 'no sé qué plan elegir, ayúdame' },
+  { label: '💰 El precio',      text: 'Quiero saber los precios y cuánto cuesta' },
+  { label: '⚡ La velocidad',   text: 'Quiero saber qué velocidad necesito' },
+  { label: '📺 Internet + TV',  text: 'Quiero internet con televisión y canales' },
+  { label: '🤷 No sé, ayúdame', text: 'No sé qué plan elegir, cuéntame las opciones' },
 ]
 
 function formatTime(ts) {

@@ -28,8 +28,7 @@ export const telegramService = {
       parse_mode: 'Markdown',
       reply_markup: {
         inline_keyboard: [[
-          { text: '📞 Llamar',    url: `tel:${phone}` },
-          { text: '💬 WhatsApp',  url: `https://wa.me/51${phone}` },
+          { text: '💬 WhatsApp', url: `https://wa.me/51${phone}` },
         ]],
       },
     }

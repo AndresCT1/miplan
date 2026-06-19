@@ -273,6 +273,25 @@ export default function ChatWidget() {
               </div>
             )}
 
+            {lastAction === 'SHOW_OPTIONS' && (
+              <div className="mt-1 mb-3 flex flex-col gap-2">
+                <button
+                  onClick={() => handleSend('Quiero ver todos los planes disponibles')}
+                  className="w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white
+                             text-sm font-semibold rounded-xl transition-colors"
+                >
+                  📋 Ver todos los planes
+                </button>
+                <button
+                  onClick={() => { navigate('/contacto'); setIsOpen(false) }}
+                  className="w-full px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700
+                             text-sm font-semibold rounded-xl transition-colors"
+                >
+                  💬 Hablar con un asesor
+                </button>
+              </div>
+            )}
+
             {lastAction === 'SAVE_LEAD' && <LeadSuccessCard />}
 
             {isLoading && <TypingDots />}

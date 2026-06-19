@@ -1,6 +1,7 @@
 import { geminiService } from './geminiService.js'
 
-const PHONE_REGEX = /\b9\d{8}\b/
+const PHONE_REGEX  = /\b9\d{8}\b/
+const NUMBER_REGEX = /^\d+$/
 
 // Devuelve true si el mensaje contiene alguno de los patrones (substring, case-insensitive)
 function matches(message, patterns) {
@@ -108,6 +109,64 @@ const PREDEFINED = [
   },
 ]
 
+// Interpreta un número en contexto del último mensaje del bot
+function handleContextNumber(num, lastBotContent, plans) {
+  const ctx = lastBotContent.toLowerCase()
+
+  // Contexto: cuántas personas → recomendar velocidad
+  if (/personas|cu[aá]ntas|cuantas/.test(ctx)) {
+    let rec
+    if (num <= 2)      rec = 'te recomiendo 100–200 Mbps, más que suficiente.'
+    else if (num <= 5) rec = 'te recomiendo 300–600 Mbps para que todos estén cómodos.'
+    else               rec = 'te recomiendo 1000 Mbps o más para ese número de usuarios.'
+
+    return {
+      response: `Con ${num} persona${num !== 1 ? 's' : ''} en casa, ${rec} ¿Tienes preferencia de operador?`,
+      action: 'SHOW_PLANS',
+      actionData: null,
+      source: 'context_number',
+    }
+  }
+
+  // Contexto: presupuesto → filtrar planes por precio
+  if (/precio|pagar|presupuesto|soles|cuánto|cuanto/.test(ctx)) {
+    const inRange = plans
+      .filter((p) => Number(p.price) <= num)
+      .sort((a, b) => b.speed_mbps - a.speed_mbps)
+      .slice(0, 3)
+
+    if (inRange.length === 0) {
+      const minPrice = Math.min(...plans.map((p) => Number(p.price)))
+      return {
+        response: `Nuestros planes empiezan desde S/${minPrice.toFixed(2)}/mes. ¿Te muestro las opciones más económicas?`,
+        action: 'SHOW_PLANS',
+        actionData: null,
+        source: 'context_number',
+      }
+    }
+
+    const list = inRange
+      .map((p) => `${p.operator_name} ${p.speed_mbps} Mbps a S/${Number(p.price).toFixed(2)}`)
+      .join(', ')
+
+    return {
+      response: `Con S/${num}/mes tienes estas opciones: ${list}. ¿Cuál te interesa?`,
+      action: 'SHOW_PLANS',
+      actionData: null,
+      source: 'context_number',
+    }
+  }
+
+  return null
+}
+
+const FALLBACK_RESPONSE = {
+  response: 'No estoy seguro de entender bien tu consulta. ¿Quieres que te muestre todos los planes disponibles, o prefieres que un asesor te contacte directamente?',
+  action: 'SHOW_OPTIONS',
+  actionData: null,
+  source: 'fallback',
+}
+
 export const chatService = {
   async processChat(message, history, plans) {
     // 1. Detección de celular — máxima prioridad
@@ -125,9 +184,7 @@ export const chatService = {
     // 2. Patrones predeterminados
     for (const entry of PREDEFINED) {
       if (matches(message, entry.patterns)) {
-        // response: null → el patrón matcheó (ej: saludo) pero delegamos a Gemini
-        if (entry.response === null) break
-
+        if (entry.response === null) break // saludo → Gemini
         return {
           response:   entry.response,
           action:     entry.action,
@@ -137,7 +194,16 @@ export const chatService = {
       }
     }
 
-    // 3. Gemini (fallback y saludos)
+    // 3. Número solo con contexto previo
+    if (NUMBER_REGEX.test(message.trim()) && history.length > 0) {
+      const lastBot = [...history].reverse().find((m) => m.role === 'assistant')
+      if (lastBot) {
+        const contextResult = handleContextNumber(parseInt(message, 10), lastBot.content, plans)
+        if (contextResult) return contextResult
+      }
+    }
+
+    // 4. Gemini
     try {
       const allMessages = [
         ...history,
@@ -147,12 +213,7 @@ export const chatService = {
       return { response, action: null, actionData: null, source: 'gemini' }
     } catch (err) {
       console.error('Gemini fallback:', err.message)
-      return {
-        response:   '¿Te gustaría hablar con uno de nuestros asesores para ayudarte mejor?',
-        action:     'OPEN_FORM',
-        actionData: null,
-        source:     'fallback',
-      }
+      return FALLBACK_RESPONSE
     }
   },
 }

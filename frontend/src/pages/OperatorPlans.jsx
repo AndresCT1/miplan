@@ -3,6 +3,7 @@ import { useParams, useLocation, useNavigate, Link } from 'react-router-dom'
 import { useOperators } from '../hooks/useOperators'
 import { usePlans }     from '../hooks/usePlans'
 import PlanCard         from '../components/operators/PlanCard'
+import PriceFilter      from '../components/operators/PriceFilter'
 
 // ── Categorización ────────────────────────────────────────────────────────────
 function categorizePlan(planName) {
@@ -15,6 +16,14 @@ const TABS = [
   { key: 'internet',    label: 'Solo Internet' },
   { key: 'internet_tv', label: 'Internet + TV'  },
 ]
+
+function applyPriceFilter(plans, filter) {
+  if (filter === 'all')  return plans
+  if (filter === 'low')  return plans.filter(p => Number(p.price) <= 60)
+  if (filter === 'mid')  return plans.filter(p => Number(p.price) > 60 && Number(p.price) <= 90)
+  if (filter === 'high') return plans.filter(p => Number(p.price) > 90)
+  return plans
+}
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 function PlansSkeleton({ color }) {
@@ -31,7 +40,7 @@ function PlansSkeleton({ color }) {
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 function CategoryTabs({ tabs, activeTab, onChange, brandColor }) {
   return (
-    <div className="flex flex-col sm:flex-row gap-2 mb-8" role="tablist">
+    <div className="flex flex-col sm:flex-row gap-2" role="tablist">
       {tabs.map(({ key, label, count }) => {
         const isActive = activeTab === key
         return (
@@ -61,7 +70,8 @@ export default function OperatorPlans() {
   const { slug }  = useParams()
   const location  = useLocation()
   const navigate  = useNavigate()
-  const [activeTab, setActiveTab]       = useState('internet')
+  const [activeTab,    setActiveTab]    = useState('internet')
+  const [priceFilter,  setPriceFilter]  = useState('all')
   const [headerLogoFailed, setHeaderLogoFailed] = useState(false)
 
   const { operators } = useOperators()
@@ -78,6 +88,12 @@ export default function OperatorPlans() {
     }
   }, [operator?.name])
 
+  // Resetear filtro de precio al cambiar de categoría
+  const handleTabChange = useCallback((tab) => {
+    setActiveTab(tab)
+    setPriceFilter('all')
+  }, [])
+
   // Categorizar planes
   const categorized = useMemo(() => {
     const groups = { internet: [], internet_tv: [] }
@@ -85,7 +101,7 @@ export default function OperatorPlans() {
     return groups
   }, [plans])
 
-  // Tabs visibles
+  // Tabs visibles (con conteo total, sin filtro de precio)
   const visibleTabs = TABS
     .map(t => ({ ...t, count: categorized[t.key]?.length ?? 0 }))
     .filter(t => t.count > 0)
@@ -94,13 +110,22 @@ export default function OperatorPlans() {
     ? activeTab
     : visibleTabs[0]?.key ?? 'internet'
 
-  // Ordenar: destacado primero, luego precio ascendente
+  // Planes de la categoría activa, ordenados
   const sortedPlans = useMemo(() => {
     return [...(categorized[currentTab] ?? [])].sort((a, b) => {
       if (b.is_featured !== a.is_featured) return b.is_featured ? 1 : -1
       return Number(a.price) - Number(b.price)
     })
   }, [categorized, currentTab])
+
+  // Filtro de precio aplicado sobre los planes ya ordenados
+  const filteredPlans = useMemo(
+    () => applyPriceFilter(sortedPlans, priceFilter),
+    [sortedPlans, priceFilter],
+  )
+
+  const showFilters  = !loading && !error && plans.length > 0
+  const noResults    = showFilters && filteredPlans.length === 0 && priceFilter !== 'all'
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: bgPage }}>
@@ -119,7 +144,6 @@ export default function OperatorPlans() {
 
           {operator && (
             <div className="flex items-center gap-3 ml-1">
-              {/* Logo del operador en el header */}
               <div className="w-16 h-16 bg-white rounded-xl p-1.5 shadow-sm
                               flex items-center justify-center shrink-0">
                 {!headerLogoFailed ? (
@@ -172,36 +196,59 @@ export default function OperatorPlans() {
           </div>
         )}
 
-        {!loading && !error && plans.length > 0 && (
+        {showFilters && (
           <>
             <h2 className="text-2xl font-bold text-gray-800 mb-6">
               Planes de <span style={{ color }}>{operator?.name}</span>
             </h2>
 
+            {/* Tabs de categoría */}
             {visibleTabs.length > 1 && (
-              <CategoryTabs
-                tabs={visibleTabs}
-                activeTab={currentTab}
-                onChange={setActiveTab}
-                brandColor={color}
-              />
+              <div className="mb-3">
+                <CategoryTabs
+                  tabs={visibleTabs}
+                  activeTab={currentTab}
+                  onChange={handleTabChange}
+                  brandColor={color}
+                />
+              </div>
             )}
 
-            {sortedPlans.length > 0 ? (
+            {/* Filtro de precio */}
+            <div className="mb-5">
+              <PriceFilter
+                active={priceFilter}
+                onChange={setPriceFilter}
+                brandColor={color}
+              />
+            </div>
+
+            {/* Contador dinámico */}
+            <p className="text-sm text-gray-500 mb-4">
+              Mostrando{' '}
+              <span className="font-semibold text-gray-700">{filteredPlans.length}</span>
+              {filteredPlans.length === 1 ? ' plan' : ' planes'}
+              {priceFilter !== 'all' && (
+                <button
+                  onClick={() => setPriceFilter('all')}
+                  className="ml-2 text-xs underline underline-offset-2 hover:text-gray-900
+                             transition-colors"
+                  style={{ color }}
+                >
+                  Limpiar filtro
+                </button>
+              )}
+            </p>
+
+            {/* Grid de planes */}
+            {!noResults ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {sortedPlans.map((plan) => (
-                  /*
-                   * Wrapper relativo: gestiona el badge flotante, el mt-6
-                   * y el scale sin afectar overflow-hidden de PlanCard.
-                   */
+                {filteredPlans.map((plan) => (
                   <div
                     key={plan.id}
                     className={`relative transition-transform duration-150
-                      ${plan.is_featured
-                        ? 'mt-6 sm:scale-105 z-10'
-                        : ''}`}
+                      ${plan.is_featured ? 'mt-6 sm:scale-105 z-10' : ''}`}
                   >
-                    {/* Badge flotante "El más pedido" */}
                     {plan.is_featured && (
                       <div
                         className="absolute -top-4 left-1/2 -translate-x-1/2
@@ -212,7 +259,6 @@ export default function OperatorPlans() {
                         ⭐ El más pedido
                       </div>
                     )}
-
                     <PlanCard
                       plan={plan}
                       operatorName={operator?.name}
@@ -225,10 +271,23 @@ export default function OperatorPlans() {
                 ))}
               </div>
             ) : (
+              /* Sin resultados con filtro de precio activo */
               <div className="text-center py-16">
-                <p className="text-gray-500 text-lg">
-                  No hay planes disponibles en esta categoría.
+                <p className="text-4xl mb-4" aria-hidden="true">🔍</p>
+                <p className="text-gray-700 text-lg font-semibold mb-2">
+                  No hay planes en este rango de precio
                 </p>
+                <p className="text-gray-500 text-base mb-6">
+                  Prueba con otro filtro o mira todos los planes disponibles
+                </p>
+                <button
+                  onClick={() => setPriceFilter('all')}
+                  className="px-6 py-3 rounded-xl text-white font-semibold
+                             min-h-[48px] transition-opacity hover:opacity-90"
+                  style={{ backgroundColor: color }}
+                >
+                  Ver todos los planes
+                </button>
               </div>
             )}
           </>

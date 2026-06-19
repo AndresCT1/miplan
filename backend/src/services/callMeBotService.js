@@ -22,9 +22,13 @@ export const callMeBotService = {
 
     try {
       const url = `https://api.callmebot.com/whatsapp.php?phone=${CALLMEBOT_PHONE}&text=${encodeURIComponent(message)}&apikey=${CALLMEBOT_APIKEY}`
+      console.log('CallMeBot URL:', url)
       const res = await fetch(url)
+      console.log('CallMeBot status:', res.status)
+      const responseText = await res.text()
+      console.log('CallMeBot response:', responseText)
       if (!res.ok) {
-        console.error('[CallMeBot] Error HTTP:', res.status, await res.text())
+        console.error('[CallMeBot] Error HTTP:', res.status, responseText)
       }
     } catch (err) {
       console.error('[CallMeBot] Error de red:', err.message)

@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useCompare } from '../../context/CompareContext'
+import { useCompare }         from '../../context/CompareContext'
+import { usePriceCountUp }    from '../../hooks/usePriceCountUp'
+import { useScrollReveal }    from '../../hooks/useScrollReveal'
 
 // Tooltip solo en la primera tarjeta que se renderiza por sesión
 let _tooltipClaimed = false
@@ -58,8 +60,13 @@ export default function PlanCard({
     setShowTooltip(false)
   }
 
-  const buttonText      = ctaLabel || 'Quiero este plan'
+  const buttonText        = ctaLabel || 'Quiero este plan'
   const showFeaturedBadge = mostPopular || (is_featured && !brandColor)
+  const { ref: cardRevealRef, visible: cardVisible } = useScrollReveal()
+  const { value: displayPrice, start: startCountUp } = usePriceCountUp(Number(price))
+
+  // Inicia count-up cuando la card entra en viewport
+  useEffect(() => { if (cardVisible) startCountUp() }, [cardVisible])
 
   const cardBorder = isSelected
     ? { borderColor: '#2563EB', borderWidth: '2px', borderStyle: 'dashed' }
@@ -79,21 +86,36 @@ export default function PlanCard({
 
   return (
     <article
+      ref={cardRevealRef}
       aria-label={`Plan ${name}, S/${Number(price).toFixed(2)} al mes`}
       className={`relative rounded-2xl bg-white flex flex-col gap-4 overflow-hidden
-        transition-all duration-150 hover:shadow-xl ${cardClass}`}
+        transition-all duration-200 hover:shadow-xl hover:-translate-y-1 ${cardClass}
+        ${cardVisible ? 'animate-fade-up' : 'opacity-0'}`}
       style={cardBorder}
     >
       {mostPopular && (
-        <div className="text-center text-white text-sm font-bold py-2"
+        <div className="text-center text-white text-sm font-bold py-2 relative overflow-hidden"
              style={{ backgroundColor: color }}>
           ⭐ Más popular
+          {/* Shimmer */}
+          <span className="absolute inset-0 animate-shimmer"
+                style={{
+                  background: 'linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.3) 50%,transparent 100%)',
+                  backgroundSize: '200% auto',
+                }}
+                aria-hidden="true" />
         </div>
       )}
       {!mostPopular && is_featured && !brandColor && (
-        <div className="text-center text-white text-xs font-bold py-1.5"
+        <div className="text-center text-white text-xs font-bold py-1.5 relative overflow-hidden"
              style={{ backgroundColor: color }}>
           Recomendado
+          <span className="absolute inset-0 animate-shimmer"
+                style={{
+                  background: 'linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.3) 50%,transparent 100%)',
+                  backgroundSize: '200% auto',
+                }}
+                aria-hidden="true" />
         </div>
       )}
 
@@ -111,8 +133,8 @@ export default function PlanCard({
         <div className="text-center">
           <div className="flex items-start justify-center gap-1">
             <span className="text-xl font-bold mt-2" style={{ color }}>S/</span>
-            <span className="text-5xl font-extrabold leading-none" style={{ color }}>
-              {Number(price).toFixed(2)}
+            <span className="text-5xl font-extrabold leading-none tabular-nums" style={{ color }}>
+              {displayPrice.toFixed(2)}
             </span>
           </div>
           <p className="text-base text-gray-400 mt-1">al mes</p>

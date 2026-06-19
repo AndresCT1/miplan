@@ -3,8 +3,23 @@ import { useNavigate } from 'react-router-dom'
 import { useOperators }      from '../hooks/useOperators'
 import { useFeaturedPlans }  from '../hooks/useFeaturedPlans'
 import { useCompare }        from '../context/CompareContext'
+import { useScrollReveal }   from '../hooks/useScrollReveal'
 import OperatorCard          from '../components/operators/OperatorCard'
 import PlanCard              from '../components/operators/PlanCard'
+
+// Clase reutilizable para fade-up al entrar en viewport
+function RevealSection({ children, className = '', tag: Tag = 'div' }) {
+  const { ref, visible } = useScrollReveal()
+  return (
+    <Tag
+      ref={ref}
+      className={`${className} transition-all duration-[400ms] ease-out
+                  ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}
+    >
+      {children}
+    </Tag>
+  )
+}
 
 // ── WhatsApp ─────────────────────────────────────────────────────────────────
 const WA_NUMBER  = '51920170692'
@@ -62,18 +77,38 @@ function HomeNav() {
 // ── SECCIÓN 1 — Hero ──────────────────────────────────────────────────────────
 function HeroSection() {
   return (
-    <section className="bg-gradient-to-b from-blue-50 via-blue-50/40 to-white
-                        pt-16 pb-20 px-4 text-center">
-      <div className="max-w-3xl mx-auto">
+    <section className="relative overflow-hidden pt-16 pb-20 px-4 text-center"
+             style={{
+               background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 40%, #e0f2fe 70%, #f0f9ff 100%)',
+             }}>
+
+      {/* Orbes de fondo — aurora muy sutil */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-20 -left-20 w-72 h-72 rounded-full opacity-20"
+             style={{ background: 'radial-gradient(circle, #3b82f6, transparent 70%)',
+                      animation: 'float-slow 6s ease-in-out infinite' }} />
+        <div className="absolute -bottom-10 -right-10 w-96 h-96 rounded-full opacity-15"
+             style={{ background: 'radial-gradient(circle, #06b6d4, transparent 70%)',
+                      animation: 'float-slow 8s ease-in-out infinite reverse' }} />
+      </div>
+
+      <div className="relative max-w-3xl mx-auto">
+        {/* Badge con pulso */}
         <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700
-                        text-sm font-semibold px-4 py-2 rounded-full mb-6">
+                        text-sm font-semibold px-4 py-2 rounded-full mb-6
+                        animate-pulse-glow">
           ⚡ Comparador #1 en Arequipa
+          <span className="ml-1 text-xs font-bold text-cyan-600 bg-cyan-100 px-2 py-0.5 rounded-full">
+            PERÚ · 2025
+          </span>
         </div>
 
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900
                        leading-tight tracking-tight mb-4">
           Encuentra el{' '}
-          <span className="text-blue-600">mejor plan</span>
+          <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+            mejor plan
+          </span>
           {' '}de internet{' '}
           <span className="block sm:inline">para tu hogar</span>
         </h1>
@@ -87,9 +122,13 @@ function HeroSection() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <button
             onClick={() => document.getElementById('operadores')?.scrollIntoView({ behavior: 'smooth' })}
-            className="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-700
-                       text-white font-semibold rounded-xl transition-colors
-                       text-base min-h-[48px] shadow-md shadow-blue-200"
+            className="w-full sm:w-auto px-8 py-4 rounded-xl text-white font-semibold
+                       text-base min-h-[48px] shadow-md transition-all duration-200
+                       hover:scale-105 hover:shadow-lg active:scale-95"
+            style={{
+              background: 'linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)',
+              boxShadow:  '0 4px 15px rgba(37,99,235,0.35)',
+            }}
           >
             Ver planes →
           </button>
@@ -97,8 +136,8 @@ function HeroSection() {
             href={WA_URL} target="_blank" rel="noopener noreferrer"
             className="w-full sm:w-auto px-8 py-4 border-2 border-blue-600
                        text-blue-600 hover:bg-blue-50 font-semibold rounded-xl
-                       transition-colors text-base min-h-[48px]
-                       flex items-center justify-center gap-2"
+                       transition-all duration-200 text-base min-h-[48px]
+                       flex items-center justify-center gap-2 hover:scale-105"
           >
             <WaIcon className="w-5 h-5" />
             Hablar con asesor
@@ -124,7 +163,7 @@ function TrustBar() {
     { icon: '⚡', text: 'Te respondemos el mismo día' },
   ]
   return (
-    <div className="bg-gray-50 border-y border-gray-100 py-5 px-4">
+    <RevealSection tag="div" className="bg-gray-50 border-y border-gray-100 py-5 px-4">
       <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center
                       justify-center gap-4 sm:gap-10">
         {items.map(({ icon, text }) => (
@@ -135,7 +174,7 @@ function TrustBar() {
           </div>
         ))}
       </div>
-    </div>
+    </RevealSection>
   )
 }
 
@@ -276,25 +315,25 @@ function HowItWorksSection() {
   return (
     <section className="py-16 sm:py-20 px-4 bg-gray-50">
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12">
+        <RevealSection className="text-center mb-12">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
             Así de fácil es encontrar tu plan
           </h2>
-        </div>
+        </RevealSection>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
           {HOW_STEPS.map(({ num, icon, title, desc }) => (
-            <div key={num} className="flex flex-col items-center text-center gap-3">
-              {/* Número grande */}
-              <div className="w-14 h-14 rounded-full bg-blue-600 text-white
+            <RevealSection key={num} className="flex flex-col items-center text-center gap-3">
+              <div className="w-14 h-14 rounded-full text-white
                               flex items-center justify-center text-2xl font-extrabold
-                              shadow-md shadow-blue-200">
+                              shadow-md shadow-blue-200"
+                   style={{ background: 'linear-gradient(135deg, #2563eb, #06b6d4)' }}>
                 {num}
               </div>
               <span className="text-3xl" aria-hidden="true">{icon}</span>
               <h3 className="text-lg font-bold text-gray-900">{title}</h3>
               <p className="text-sm text-gray-500 leading-relaxed max-w-xs">{desc}</p>
-            </div>
+            </RevealSection>
           ))}
         </div>
       </div>
@@ -345,43 +384,35 @@ function FeaturedPlansSection() {
 
 // ── SECCIÓN 4 — Por qué elegirnos ─────────────────────────────────────────────
 const WHY_ITEMS = [
-  {
-    icon: '🔍',
-    title: 'Comparamos por ti',
-    desc:  'Revisamos las promociones de todos los operadores para que tú no tengas que hacerlo',
-  },
-  {
-    icon: '📱',
-    title: 'Un asesor real te llama',
-    desc:  'No chatbots, no formularios infinitos. Una persona real te explica todo',
-  },
-  {
-    icon: '✅',
-    title: 'Sin costo, sin compromiso',
-    desc:  'Nuestro servicio es completamente gratuito. Tú decides si contratas o no',
-  },
+  { icon: '🔍', bg: 'bg-blue-50',   title: 'Comparamos por ti',        desc: 'Revisamos las promociones de todos los operadores para que tú no tengas que hacerlo' },
+  { icon: '📱', bg: 'bg-green-50',  title: 'Un asesor real te llama',  desc: 'No chatbots, no formularios infinitos. Una persona real te explica todo' },
+  { icon: '✅', bg: 'bg-cyan-50',   title: 'Sin costo, sin compromiso', desc: 'Nuestro servicio es completamente gratuito. Tú decides si contratas o no' },
 ]
 
 function WhyUsSection() {
   return (
     <section className="py-16 sm:py-20 px-4 bg-gray-50">
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-10">
+        <RevealSection className="text-center mb-10">
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
             Sin complicaciones, sin sorpresas
           </h2>
           <p className="text-gray-500 text-sm sm:text-base">Lo que ves es lo que pagas</p>
-        </div>
+        </RevealSection>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {WHY_ITEMS.map(({ icon, title, desc }) => (
-            <div key={title}
-              className="bg-white rounded-2xl p-6 flex flex-col gap-3
-                         shadow-sm hover:shadow-md transition-shadow duration-150">
-              <span className="text-4xl" aria-hidden="true">{icon}</span>
-              <h3 className="text-lg font-bold text-gray-900">{title}</h3>
-              <p className="text-base text-gray-500 leading-relaxed">{desc}</p>
-            </div>
+          {WHY_ITEMS.map(({ icon, bg, title, desc }) => (
+            <RevealSection key={title}>
+              <div className="bg-white rounded-2xl p-6 flex flex-col gap-3
+                              shadow-sm hover:shadow-lg transition-all duration-200
+                              hover:-translate-y-1 h-full">
+                <div className={`w-16 h-16 rounded-2xl ${bg} flex items-center justify-center mb-1`}>
+                  <span className="text-4xl" aria-hidden="true">{icon}</span>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+                <p className="text-base text-gray-500 leading-relaxed">{desc}</p>
+              </div>
+            </RevealSection>
           ))}
         </div>
       </div>
@@ -393,8 +424,9 @@ function WhyUsSection() {
 function CtaSection() {
   const navigate = useNavigate()
   return (
-    <section className="py-16 sm:py-20 px-4 bg-[#1E40AF]">
-      <div className="max-w-2xl mx-auto text-center">
+    <section className="py-16 sm:py-20 px-4"
+             style={{ background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #0891b2 100%)' }}>
+      <RevealSection className="max-w-2xl mx-auto text-center">
         <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-3">
           ¿Tienes dudas? Te ayudamos gratis
         </h2>
@@ -406,8 +438,9 @@ function CtaSection() {
           <a
             href={WA_URL} target="_blank" rel="noopener noreferrer"
             className="w-full sm:w-auto px-8 py-4 bg-green-500 hover:bg-green-600
-                       text-white font-bold rounded-xl transition-colors text-base
-                       min-h-[52px] flex items-center justify-center gap-2 shadow-lg"
+                       text-white font-bold rounded-xl transition-all duration-200 text-base
+                       min-h-[52px] flex items-center justify-center gap-2 shadow-lg
+                       hover:scale-105 active:scale-95"
           >
             <WaIcon className="w-5 h-5" />
             WhatsApp ahora
@@ -415,8 +448,8 @@ function CtaSection() {
           <button
             onClick={() => navigate('/contacto')}
             className="w-full sm:w-auto px-8 py-4 bg-transparent border-2 border-white
-                       text-white hover:bg-white/10 font-bold rounded-xl transition-colors
-                       text-base min-h-[52px]"
+                       text-white hover:bg-white/10 font-bold rounded-xl transition-all
+                       duration-200 text-base min-h-[52px] hover:scale-105 active:scale-95"
           >
             Que me llamen
           </button>
@@ -425,7 +458,7 @@ function CtaSection() {
         <p className="text-blue-300 text-sm mt-5">
           Respondemos el mismo día · Lunes a Domingo 7am–10pm · A nivel nacional
         </p>
-      </div>
+      </RevealSection>
     </section>
   )
 }
@@ -517,16 +550,21 @@ function WhatsAppButton() {
         ¡Escríbenos por WhatsApp!
       </span>
 
-      <a
-        href={WA_URL} target="_blank" rel="noopener noreferrer"
-        aria-label="Contactar por WhatsApp — 920 170 692"
-        className="w-16 h-16 sm:w-14 sm:h-14 bg-green-500 hover:bg-green-600
-                   rounded-full flex items-center justify-center
-                   shadow-lg shadow-green-300/40
-                   transition-all duration-150 hover:scale-110 active:scale-95"
-      >
-        <WaIcon className="w-8 h-8 sm:w-7 sm:h-7 text-white" />
-      </a>
+      <div className="relative">
+        {/* Anillo de pulso — animate-ping */}
+        <span className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-30"
+              aria-hidden="true" />
+        <a
+          href={WA_URL} target="_blank" rel="noopener noreferrer"
+          aria-label="Contactar por WhatsApp — 920 170 692"
+          className="relative w-16 h-16 sm:w-14 sm:h-14 bg-green-500 hover:bg-green-600
+                     rounded-full flex items-center justify-center
+                     shadow-lg shadow-green-300/40
+                     transition-all duration-200 hover:scale-110 active:scale-95"
+        >
+          <WaIcon className="w-8 h-8 sm:w-7 sm:h-7 text-white" />
+        </a>
+      </div>
     </div>
   )
 }

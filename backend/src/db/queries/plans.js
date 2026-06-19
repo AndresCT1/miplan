@@ -1,4 +1,5 @@
-import { pool } from '../connection.js'
+import { pool }                       from '../connection.js'
+import { getBulkDistributedCounts }  from './planViews.js'
 
 export async function getByOperator(operatorId) {
   const { rows } = await pool.query(
@@ -8,7 +9,14 @@ export async function getByOperator(operatorId) {
      ORDER BY price ASC`,
     [operatorId]
   )
-  return rows
+
+  if (rows.length === 0) return rows
+
+  // Una sola query para todos los conteos — sin N+1
+  const planIds  = rows.map((r) => r.id)
+  const viewsMap = await getBulkDistributedCounts(planIds)
+
+  return rows.map((r) => ({ ...r, views_today: viewsMap[r.id] ?? 3 }))
 }
 
 export async function getCompare(ids) {

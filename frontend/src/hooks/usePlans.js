@@ -22,5 +22,17 @@ export function usePlans(operatorId) {
 
   useEffect(() => { fetchPlans() }, [fetchPlans])
 
+  // Registra vista por plan, una vez por sesión por planId
+  useEffect(() => {
+    if (plans.length === 0) return
+    plans.forEach((plan) => {
+      const key = `viewed_plan_${plan.id}`
+      if (!sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, '1')
+        plansService.recordView(plan.id).catch(() => {})
+      }
+    })
+  }, [plans])
+
   return { plans, loading, error, refetch: fetchPlans }
 }

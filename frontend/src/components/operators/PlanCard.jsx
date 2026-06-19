@@ -162,6 +162,14 @@ export default function PlanCard({
         </div>
         <p className="text-sm text-center text-gray-400 -mt-2">velocidad de internet</p>
 
+        {/* Contador de vistas — solo si >= 3 para no restar credibilidad */}
+        {plan.views_today >= 3 && (
+          <p className="text-xs text-gray-400 flex items-center justify-center gap-1 -mt-1">
+            <span aria-hidden="true">👀</span>
+            Visto {plan.views_today} {plan.views_today === 1 ? 'vez' : 'veces'} hoy
+          </p>
+        )}
+
         {/* 3. NOMBRE */}
         <h3 className="text-lg font-semibold text-gray-700 text-center leading-tight">
           {name}

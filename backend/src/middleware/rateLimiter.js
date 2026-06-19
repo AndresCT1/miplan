@@ -8,6 +8,14 @@ export const leadsLimiter = rateLimit({
   message: { success: false, data: null, error: 'Demasiadas solicitudes. Intenta en 15 minutos.' },
 })
 
+export const viewsLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, data: null, error: 'Límite de solicitudes alcanzado.' },
+})
+
 export const chatLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 20,

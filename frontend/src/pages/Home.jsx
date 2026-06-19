@@ -5,6 +5,7 @@ import { useCompare }      from '../context/CompareContext'
 import { useScrollReveal } from '../hooks/useScrollReveal'
 import OperatorCard        from '../components/operators/OperatorCard'
 import OfferBanner         from '../components/home/OfferBanner'
+import StickyFormCTA      from '../components/home/StickyFormCTA'
 
 function RevealSection({ children, className = '', tag: Tag = 'div' }) {
   const { ref, visible } = useScrollReveal()
@@ -322,6 +323,7 @@ export default function Home() {
       <CtaSection />
       <FooterSection />
       <WhatsAppButton />
+      <StickyFormCTA />
     </div>
   )
 }

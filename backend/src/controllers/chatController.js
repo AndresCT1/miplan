@@ -39,6 +39,8 @@ export async function handleChat(req, res) {
     // Captura automática de lead cuando se detecta celular
     if (result.action === 'SAVE_LEAD' && result.actionData?.phone) {
       const name = extractNameFromHistory(safeHistory)
+      // Incluir nombre en actionData para que el frontend pueda pre-llenar el form
+      result.actionData.name = name !== 'Cliente Chat' ? name : null
       leadService.create({
         phone:       result.actionData.phone,
         name,

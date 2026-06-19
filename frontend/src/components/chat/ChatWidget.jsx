@@ -5,6 +5,22 @@ import { useCompare } from '../../context/CompareContext'
 
 const WA_URL = 'https://wa.me/51920170692'
 
+// Guarda datos del chat en sessionStorage para pre-llenar el form de contacto
+function saveChatDataToSession(phone, name) {
+  if (phone) sessionStorage.setItem('chatPhone', phone)
+  if (name && name !== 'Cliente Chat') sessionStorage.setItem('chatName', name)
+}
+
+// Extrae el celular de los mensajes del chat (client-side)
+function extractPhoneFromMessages(messages) {
+  for (const msg of [...messages].reverse()) {
+    if (msg.role !== 'user') continue
+    const m = msg.content?.match(/\b9\d{8}\b/)
+    if (m) return m[0]
+  }
+  return null
+}
+
 const WELCOME_MSG = {
   role: 'welcome',
   content: '¡Hola! 👋 Soy el asesor virtual de MiPlan.pe\nTe ayudo a encontrar el mejor plan de internet para tu hogar en Arequipa en menos de 2 minutos.\n\n¿Qué es más importante para ti?',
@@ -136,6 +152,10 @@ export default function ChatWidget() {
     if (result.action === 'SHOW_OPERATOR' && result.actionData?.slug) {
       navigate(`/operador/${result.actionData.slug}`)
       setIsOpen(false)
+    } else if (result.action === 'SAVE_LEAD') {
+      // Guardar phone (y nombre si el backend lo devolvió) para pre-llenar contacto
+      saveChatDataToSession(result.actionData?.phone, result.actionData?.name)
+      setLastAction('SAVE_LEAD')
     } else if (result.action) {
       setLastAction(result.action)
     }
@@ -264,7 +284,11 @@ export default function ChatWidget() {
             {lastAction === 'OPEN_FORM' && (
               <div className="mt-1 mb-3">
                 <button
-                  onClick={() => { navigate('/contacto'); setIsOpen(false) }}
+                  onClick={() => {
+                    saveChatDataToSession(extractPhoneFromMessages(messages), null)
+                    navigate('/contacto')
+                    setIsOpen(false)
+                  }}
                   className="w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white
                              text-sm font-semibold rounded-xl transition-colors"
                 >
@@ -283,7 +307,11 @@ export default function ChatWidget() {
                   📋 Ver todos los planes
                 </button>
                 <button
-                  onClick={() => { navigate('/contacto'); setIsOpen(false) }}
+                  onClick={() => {
+                    saveChatDataToSession(extractPhoneFromMessages(messages), null)
+                    navigate('/contacto')
+                    setIsOpen(false)
+                  }}
                   className="w-full px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700
                              text-sm font-semibold rounded-xl transition-colors"
                 >

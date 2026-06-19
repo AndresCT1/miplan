@@ -166,13 +166,28 @@ export default function ContactForm({
 }) {
   const color = brandColor
 
-  const [fields, setFields]   = useState({ phone: '', name: '' })
+  // Pre-llenar desde sessionStorage (datos del chat) o props vacíos
+  const [fields, setFields] = useState(() => ({
+    phone: sessionStorage.getItem('chatPhone') || '',
+    name:  sessionStorage.getItem('chatName')  || '',
+  }))
   const [touched, setTouched] = useState({})
   const [status, setStatus]   = useState('idle')
   const [errorMsg, setErrorMsg] = useState('')
   const phoneRef = useRef(null)
+  const nameRef  = useRef(null)
 
-  useEffect(() => { phoneRef.current?.focus() }, [])
+  useEffect(() => {
+    // Limpiar sessionStorage tras usar los datos
+    sessionStorage.removeItem('chatPhone')
+    sessionStorage.removeItem('chatName')
+    // Foco inteligente: si ya hay celular, enfocar nombre; si no, enfocar celular
+    if (fields.phone && !fields.name) {
+      nameRef.current?.focus()
+    } else {
+      phoneRef.current?.focus()
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const errors = {
     phone: !/^9\d{8}$/.test(fields.phone)
@@ -269,6 +284,7 @@ export default function ContactForm({
           ¿Cuál es tu nombre?
         </label>
         <input
+          ref={nameRef}
           id="name"
           type="text"
           value={fields.name}

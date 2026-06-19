@@ -1,5 +1,6 @@
-const GEMINI_URL =
-  `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${process.env.GEMINI_API_KEY}`
+const GEMINI_MODEL = 'gemini-2.0-flash-lite'
+const GEMINI_URL   =
+  `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${process.env.GEMINI_API_KEY}`
 
 function buildSystemPrompt(availablePlans) {
   const plansJson = JSON.stringify(
@@ -72,11 +73,11 @@ export const geminiService = {
         generationConfig: { maxOutputTokens: 300, temperature: 0.7 },
       }),
     })
+    console.log(`Gemini [${GEMINI_MODEL}] status: ${res.status}`)
     if (!res.ok) {
       const errBody = await res.text()
-      const err = new Error(`Gemini ${res.status}: ${errBody}`)
       console.error('Gemini error completo:', JSON.stringify({ status: res.status, body: errBody }))
-      throw err
+      throw new Error(`Gemini ${res.status}: ${errBody}`)
     }
     const json = await res.json()
     return json.candidates[0].content.parts[0].text.trim()

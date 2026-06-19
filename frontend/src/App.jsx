@@ -7,6 +7,7 @@ import ProtectedRoute      from './components/admin/ProtectedRoute'
 import AdminLayout         from './components/admin/AdminLayout'
 import ChatWidget          from './components/chat/ChatWidget'
 import PlanCompareBar      from './components/operators/PlanCompareBar'
+import ScrollToTop         from './components/ScrollToTop'
 
 // Public pages
 const Home          = lazy(() => import('./pages/Home'))
@@ -45,6 +46,7 @@ export default function App() {
       <AdminProvider>
         <CompareProvider>
           <ChatProvider>
+            <ScrollToTop />
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 {/* Public */}

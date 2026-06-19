@@ -28,6 +28,14 @@ if (missing.length) {
 
 console.log('✅ Variables de entorno OK')
 
+// Variables opcionales — warning sin detener el proceso
+const OPTIONAL_ENV = ['CALLMEBOT_PHONE', 'CALLMEBOT_APIKEY']
+const missingOptional = OPTIONAL_ENV.filter((k) => !process.env[k])
+if (missingOptional.length) {
+  console.warn('⚠️  Variables opcionales no configuradas:', missingOptional.join(', '))
+  console.warn('   Las notificaciones por WhatsApp (CallMeBot) estarán desactivadas.')
+}
+
 const app = express()
 
 app.set('trust proxy', 1)

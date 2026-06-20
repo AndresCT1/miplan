@@ -82,6 +82,10 @@ export default function OperatorPlans() {
   const color  = operator?.brand_color || '#2563EB'
   const bgPage = `${color}0F`
 
+  // WOW combina internet + app de TV en casi todos sus planes;
+  // dividirlos por categoría confunde al cliente → mostrar todo junto
+  const skipCategoryTabs = slug === 'wow'
+
   useEffect(() => {
     if (operator?.name) {
       document.title = `Planes ${operator.name} en Arequipa | MiPlan.pe`
@@ -94,7 +98,7 @@ export default function OperatorPlans() {
     setPriceFilter('all')
   }, [])
 
-  // Categorizar planes
+  // Categorizar planes (solo usado si !skipCategoryTabs)
   const categorized = useMemo(() => {
     const groups = { internet: [], internet_tv: [] }
     plans.forEach(p => groups[categorizePlan(p.name)].push(p))
@@ -110,13 +114,16 @@ export default function OperatorPlans() {
     ? activeTab
     : visibleTabs[0]?.key ?? 'internet'
 
-  // Planes de la categoría activa, ordenados
+  // Planes a mostrar: todos (WOW) o solo la categoría activa (resto)
   const sortedPlans = useMemo(() => {
-    return [...(categorized[currentTab] ?? [])].sort((a, b) => {
+    const base = skipCategoryTabs
+      ? [...plans]
+      : [...(categorized[currentTab] ?? [])]
+    return base.sort((a, b) => {
       if (b.is_featured !== a.is_featured) return b.is_featured ? 1 : -1
       return Number(a.price) - Number(b.price)
     })
-  }, [categorized, currentTab])
+  }, [skipCategoryTabs, plans, categorized, currentTab])
 
   // Filtro de precio aplicado sobre los planes ya ordenados
   const filteredPlans = useMemo(
@@ -202,8 +209,8 @@ export default function OperatorPlans() {
               Planes de <span style={{ color }}>{operator?.name}</span>
             </h2>
 
-            {/* Tabs de categoría */}
-            {visibleTabs.length > 1 && (
+            {/* Tabs de categoría — omitidos para WOW (todo su catálogo es combo) */}
+            {!skipCategoryTabs && visibleTabs.length > 1 && (
               <div className="mb-3">
                 <CategoryTabs
                   tabs={visibleTabs}

@@ -18,6 +18,17 @@ const PREDEFINED = [
     actionData: null,
   },
   {
+    // Consultas de catálogo — ANTES que precio para evitar falsos positivos
+    patterns: [
+      'todos los planes', 'ver planes', 'planes disponibles',
+      'qué planes', 'que planes', 'mostrar planes',
+      'qué operadores', 'que operadores', 'operadores disponibles',
+    ],
+    response: 'Tenemos planes de Claro, Movistar, WOW, WIN y Mi Fibra. Te muestro todo el catálogo:',
+    action: 'SHOW_PLANS',
+    actionData: null,
+  },
+  {
     patterns: ['precio', 'cuanto cuesta', 'cuánto cuesta', 'costo', 'tarifa', 'cuanto sale', 'cuánto sale'],
     response: 'Tenemos planes desde S/1.00 hasta S/210 al mes según el operador y velocidad. ¿Cuánto quieres pagar aproximadamente?',
     action: 'SHOW_PLANS',
@@ -84,7 +95,7 @@ const PREDEFINED = [
     actionData: null,
   },
   {
-    patterns: ['horario', 'hora', 'atienden', 'disponible', 'estan abiertos', 'están abiertos'],
+    patterns: ['horario', 'hora de atención', 'hora de atencion', 'a qué hora', 'a que hora', 'atienden', 'estan abiertos', 'están abiertos'],
     response: 'Atendemos de lunes a sábado de 9am a 7pm. También puedes escribirnos por WhatsApp al 920 170 692 fuera de ese horario.',
     action: null,
     actionData: null,

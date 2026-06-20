@@ -1,4 +1,4 @@
-import { getByOperator, getCompare, getFeatured }     from '../db/queries/plans.js'
+import { getByOperator, getCompare, getFeatured, getAllForListing } from '../db/queries/plans.js'
 import { recordView, getTodayDistributedCount }        from '../db/queries/planViews.js'
 import { respond }                                      from '../utils/respond.js'
 
@@ -55,6 +55,21 @@ export async function registerPlanView(req, res, next) {
     }
     await recordView(planId)
     respond(res, 200, { recorded: true })
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function getAllPlans(req, res, next) {
+  try {
+    const { sort, category } = req.query
+    const VALID_SORTS = ['price_asc', 'price_desc', 'speed_desc']
+    const VALID_CATS  = ['internet', 'internet_tv']
+    const plans = await getAllForListing({
+      sort:     VALID_SORTS.includes(sort)     ? sort     : 'price_asc',
+      category: VALID_CATS.includes(category)  ? category : undefined,
+    })
+    respond(res, 200, plans)
   } catch (err) {
     next(err)
   }

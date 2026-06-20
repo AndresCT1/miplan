@@ -135,11 +135,22 @@ function OperatorsSection() {
           </div>
         )}
         {!loading && !error && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
-            {operators.map((op) => (
-              <OperatorCard key={op.id} operator={op} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+              {operators.map((op) => (
+                <OperatorCard key={op.id} operator={op} />
+              ))}
+            </div>
+            <div className="text-center mt-6">
+              <Link
+                to="/todos-los-planes"
+                className="text-sm text-blue-600 hover:text-blue-800 font-medium
+                           hover:underline transition-colors"
+              >
+                ¿Prefieres ver todos los planes juntos? →
+              </Link>
+            </div>
+          </>
         )}
       </div>
     </section>

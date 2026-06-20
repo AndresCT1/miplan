@@ -57,3 +57,32 @@ export async function getAllActive() {
   )
   return rows
 }
+
+export async function getAllForListing({ sort = 'price_asc', category } = {}) {
+  const ORDER_MAP = {
+    price_asc:  'p.price ASC, p.speed_mbps DESC',
+    price_desc: 'p.price DESC',
+    speed_desc: 'p.speed_mbps DESC, p.price ASC',
+  }
+  const orderClause = ORDER_MAP[sort] ?? ORDER_MAP.price_asc
+
+  const tvCondition = `EXISTS (
+    SELECT 1 FROM unnest(p.features) f
+    WHERE f ILIKE '%TV%' OR f ILIKE '%televi%' OR f ILIKE '%cable%'
+  )`
+
+  let extraWhere = ''
+  if (category === 'internet_tv') extraWhere = `AND ${tvCondition}`
+  if (category === 'internet')    extraWhere = `AND NOT ${tvCondition}`
+
+  const { rows } = await pool.query(
+    `SELECT p.id, p.name, p.speed_mbps, p.price, p.features, p.is_featured,
+            o.id AS operator_id, o.name AS operator_name,
+            o.slug AS operator_slug, o.brand_color, o.logo_url
+     FROM plans p
+     JOIN operators o ON p.operator_id = o.id
+     WHERE p.active = true AND o.active = true ${extraWhere}
+     ORDER BY ${orderClause}`
+  )
+  return rows
+}

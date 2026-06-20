@@ -90,6 +90,10 @@ export default function Navbar() {
               Operadores
             </button>
 
+            <Link to="/todos-los-planes" className={linkClass('/todos-los-planes')}>
+              Todos los planes
+            </Link>
+
             <button onClick={goToComparar}
                     className={`relative text-sm font-medium transition-colors duration-150 pb-0.5
                                 border-b-2
@@ -223,6 +227,15 @@ export default function Navbar() {
               </span>
             )}
           </button>
+
+          <Link to="/todos-los-planes" onClick={closeMenu}
+                className={`px-3 py-3 rounded-xl text-base font-medium
+                            min-h-[48px] flex items-center transition-colors
+                            ${isActive('/todos-los-planes')
+                              ? 'bg-blue-50 text-blue-700'
+                              : 'text-gray-700 hover:bg-gray-50'}`}>
+            📋 Todos los planes
+          </Link>
 
           <Link to="/nosotros" onClick={closeMenu}
                 className={`px-3 py-3 rounded-xl text-base font-medium

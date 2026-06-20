@@ -20,6 +20,7 @@ const Contact          = lazy(() => import('./pages/Contact'))
 const Compare          = lazy(() => import('./pages/Compare'))
 const FeaturedPlans    = lazy(() => import('./pages/FeaturedPlans'))
 const About            = lazy(() => import('./pages/About'))
+const AllPlans         = lazy(() => import('./pages/AllPlans'))
 
 // Admin pages
 const AdminLogin    = lazy(() => import('./pages/admin/Login'))
@@ -83,12 +84,13 @@ export default function App() {
                 <ContentWrapper>
                   <Routes>
                     {/* Public */}
-                    <Route path="/"                   element={<Home />} />
-                    <Route path="/operador/:slug"      element={<OperatorPlans />} />
-                    <Route path="/contacto"            element={<Contact />} />
-                    <Route path="/comparar"            element={<Compare />} />
-                    <Route path="/planes-destacados"   element={<FeaturedPlans />} />
-                    <Route path="/nosotros"            element={<About />} />
+                    <Route path="/"                      element={<Home />} />
+                    <Route path="/operador/:slug"         element={<OperatorPlans />} />
+                    <Route path="/contacto"               element={<Contact />} />
+                    <Route path="/comparar"               element={<Compare />} />
+                    <Route path="/planes-destacados"      element={<FeaturedPlans />} />
+                    <Route path="/todos-los-planes"       element={<AllPlans />} />
+                    <Route path="/nosotros"               element={<About />} />
 
                     {/* Admin — public */}
                     <Route path="/admin/login"         element={<AdminLogin />} />

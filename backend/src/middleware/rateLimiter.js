@@ -32,3 +32,12 @@ export const loginLimiter = rateLimit({
   legacyHeaders: false,
   message: { success: false, data: null, error: 'Demasiados intentos. Espera 15 minutos.' },
 })
+
+export const sellerLoginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  skipSuccessfulRequests: true,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, data: null, error: 'Demasiados intentos. Espera 15 minutos.' },
+})

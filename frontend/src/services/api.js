@@ -35,12 +35,26 @@ export const chatService = {
 }
 
 export const adminService = {
-  login:        (creds)  => api.post('/admin/login', creds),
-  logout:       ()       => api.post('/admin/logout'),
-  getMe:        ()       => api.get('/admin/me'),
-  getLeads:     (params) => api.get('/admin/leads', { params }),
-  updateStatus: (id, s)  => api.put(`/admin/leads/${id}/status`, { status: s }),
-  getStats:     ()       => api.get('/admin/stats'),
+  login:              (creds)  => api.post('/admin/login', creds),
+  logout:             ()       => api.post('/admin/logout'),
+  getMe:              ()       => api.get('/admin/me'),
+  getLeads:           (params) => api.get('/admin/leads', { params }),
+  updateStatus:       (id, s)  => api.put(`/admin/leads/${id}/status`, { status: s }),
+  getStats:           ()       => api.get('/admin/stats'),
+  getCommissions:     ()       => api.get('/admin/commissions'),
+  updateCommission:   (id, pct) => api.put(`/admin/commissions/${id}`, { commission_pct: pct }),
+}
+
+export const sellerService = {
+  login:          (creds)   => api.post('/seller/login', creds),
+  logout:         ()        => api.post('/seller/logout'),
+  getMe:          ()        => api.get('/seller/me'),
+  getDashboard:   ()        => api.get('/seller/dashboard'),
+  getCatalog:     ()        => api.get('/seller/catalog'),
+  getSales:       (params)  => api.get('/seller/sales', { params }),
+  createSale:     (data)    => api.post('/seller/sales', data),
+  updateSale:     (id, data)=> api.put(`/seller/sales/${id}`, data),
+  markContacted:  (id)      => api.post(`/seller/sales/${id}/contacted`),
 }
 
 export default api

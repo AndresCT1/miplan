@@ -4,12 +4,14 @@ import helmet from 'helmet'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 
-import operatorsRouter from './routes/operators.js'
-import plansRouter     from './routes/plans.js'
-import leadsRouter     from './routes/leads.js'
-import adminRouter     from './routes/admin.js'
-import chatRouter      from './routes/chat.js'
-import { errorHandler } from './middleware/errorHandler.js'
+import operatorsRouter    from './routes/operators.js'
+import plansRouter        from './routes/plans.js'
+import leadsRouter        from './routes/leads.js'
+import adminRouter        from './routes/admin.js'
+import chatRouter         from './routes/chat.js'
+import commissionsRouter  from './routes/commissions.js'
+import sellerRouter       from './routes/seller.js'
+import { errorHandler }   from './middleware/errorHandler.js'
 
 const REQUIRED_ENV = [
   'DATABASE_URL',
@@ -66,11 +68,13 @@ app.use(express.json())
 app.use(cookieParser())
 
 // ── Rutas ────────────────────────────────────────────────────────────────────
-app.use('/api/operators', operatorsRouter)
-app.use('/api/plans',     plansRouter)
-app.use('/api/leads',     leadsRouter)
-app.use('/api/admin',     adminRouter)
-app.use('/api/chat',      chatRouter)
+app.use('/api/operators',           operatorsRouter)
+app.use('/api/plans',               plansRouter)
+app.use('/api/leads',               leadsRouter)
+app.use('/api/admin',               adminRouter)
+app.use('/api/chat',                chatRouter)
+app.use('/api/admin/commissions',   commissionsRouter)
+app.use('/api/seller',              sellerRouter)
 
 app.get('/api/health', (_req, res) => {
   res.json({ success: true, data: { status: 'ok' }, error: null })

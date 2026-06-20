@@ -13,10 +13,12 @@ import { getSellerCatalog, getCommissionByOperator } from '../db/queries/commiss
 import { pool } from '../db/connection.js'
 import { respond } from '../utils/respond.js'
 
+const isProd = process.env.NODE_ENV === 'production'
+
 const COOKIE_OPTS = {
   httpOnly: true,
-  secure:   process.env.NODE_ENV === 'production',
-  sameSite: 'strict',
+  secure:   isProd,
+  sameSite: isProd ? 'none' : 'lax',
   maxAge:   8 * 60 * 60 * 1000, // 8 h
 }
 

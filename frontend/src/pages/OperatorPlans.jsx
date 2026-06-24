@@ -6,15 +6,21 @@ import PlanCard         from '../components/operators/PlanCard'
 import PriceFilter      from '../components/operators/PriceFilter'
 
 // ── Categorización ────────────────────────────────────────────────────────────
-function categorizePlan(planName) {
-  const lower = planName.toLowerCase()
-  if (lower.includes('tv') || lower.includes('tvgo')) return 'internet_tv'
+function categorizePlan(plan) {
+  const features = plan.features.join(' ').toLowerCase()
+  const hasTv  = /tv|canales/.test(features)
+  const hasTel = /telefonía|telefonia/.test(features)
+  if (hasTv && hasTel) return 'trio'
+  if (hasTv)           return 'internet_tv'
+  if (hasTel)          return 'internet_tel'
   return 'internet'
 }
 
-const TABS = [
-  { key: 'internet',    label: 'Solo Internet' },
-  { key: 'internet_tv', label: 'Internet + TV'  },
+const ALL_TABS = [
+  { key: 'internet',     label: 'Solo Internet'            },
+  { key: 'internet_tel', label: 'Internet + Teléfono'      },
+  { key: 'internet_tv',  label: 'Internet + TV'            },
+  { key: 'trio',         label: 'Internet + TV + Teléfono' },
 ]
 
 function applyPriceFilter(plans, filter) {
@@ -40,7 +46,8 @@ function PlansSkeleton({ color }) {
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 function CategoryTabs({ tabs, activeTab, onChange, brandColor }) {
   return (
-    <div className="flex flex-col sm:flex-row gap-2" role="tablist">
+    <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 sm:overflow-visible">
+      <div className="flex gap-2 min-w-max sm:min-w-0 sm:flex-wrap" role="tablist">
       {tabs.map(({ key, label, count }) => {
         const isActive = activeTab === key
         return (
@@ -61,6 +68,7 @@ function CategoryTabs({ tabs, activeTab, onChange, brandColor }) {
           </button>
         )
       })}
+      </div>
     </div>
   )
 }
@@ -100,13 +108,13 @@ export default function OperatorPlans() {
 
   // Categorizar planes (solo usado si !skipCategoryTabs)
   const categorized = useMemo(() => {
-    const groups = { internet: [], internet_tv: [] }
-    plans.forEach(p => groups[categorizePlan(p.name)].push(p))
+    const groups = { internet: [], internet_tel: [], internet_tv: [], trio: [] }
+    plans.forEach(p => groups[categorizePlan(p)].push(p))
     return groups
   }, [plans])
 
   // Tabs visibles (con conteo total, sin filtro de precio)
-  const visibleTabs = TABS
+  const visibleTabs = ALL_TABS
     .map(t => ({ ...t, count: categorized[t.key]?.length ?? 0 }))
     .filter(t => t.count > 0)
 

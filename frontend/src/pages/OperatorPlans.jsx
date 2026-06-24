@@ -7,9 +7,19 @@ import PriceFilter      from '../components/operators/PriceFilter'
 
 // ── Categorización ────────────────────────────────────────────────────────────
 function categorizePlan(plan) {
-  const features = plan.features.join(' ').toLowerCase()
-  const hasTv  = /tv|canales/.test(features)
-  const hasTel = /telefonía|telefonia/.test(features)
+  // Primero: tag explícito categoria:X (planes con nuevo formato)
+  const catTag = plan.features.find(f => f.startsWith('categoria:'))
+  if (catTag) {
+    const v = catTag.slice('categoria:'.length)
+    if (v === 'trio')      return 'trio'
+    if (v === 'tv')        return 'internet_tv'
+    if (v === 'telefonia') return 'internet_tel'
+    return 'internet'
+  }
+  // Fallback regex para planes sin tag (Movistar, WIN)
+  const text = plan.features.join(' ').toLowerCase()
+  const hasTv  = /tv|canales/.test(text)
+  const hasTel = /telefonía|telefonia/.test(text)
   if (hasTv && hasTel) return 'trio'
   if (hasTv)           return 'internet_tv'
   if (hasTel)          return 'internet_tel'

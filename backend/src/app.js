@@ -106,7 +106,8 @@ async function runFollowUpNotifications() {
         sellerNotificationService.notifyFollowUp(
           { phone: row.seller_phone, callmebot_apikey: row.callmebot_apikey, name: row.seller_name },
           { prospect_name: row.prospect_name, prospect_phone: row.prospect_phone,
-            next_contact_date: row.next_contact_date, operator_name: row.operator_name }
+            next_contact_date: row.next_contact_date, operator_name: row.operator_name,
+            plan_name: row.plan_name }
         )
       )
     )
@@ -118,8 +119,8 @@ async function runFollowUpNotifications() {
 function scheduleFollowUpCron() {
   const now    = new Date()
   const next8  = new Date(now)
-  next8.setHours(8, 0, 0, 0)
-  if (next8 <= now) next8.setDate(next8.getDate() + 1)
+  next8.setUTCHours(13, 0, 0, 0)  // 13:00 UTC = 08:00 hora Perú (UTC-5)
+  if (next8 <= now) next8.setUTCDate(next8.getUTCDate() + 1)
 
   const msUntil8 = next8 - now
   console.log(`[Cron] Recordatorios programados en ${Math.round(msUntil8 / 60000)} min`)

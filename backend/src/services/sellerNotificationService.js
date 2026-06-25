@@ -17,16 +17,16 @@ export const sellerNotificationService = {
   },
 
   async notifyFollowUp(seller, prospect) {
-    const dateStr = prospect.next_contact_date
-      ? new Date(prospect.next_contact_date + 'T00:00:00').toLocaleDateString('es-PE')
-      : '—'
+    const planInfo = [prospect.operator_name, prospect.plan_name]
+      .filter(Boolean).join(' - ')
     const message = [
-      '🔔 Seguimiento pendiente',
+      '🔔 MiPlan.pe — Seguimiento de hoy',
       `👤 ${prospect.prospect_name}`,
-      prospect.operator_name ? `📡 Operador: ${prospect.operator_name}` : null,
-      `📅 Fecha agendada: ${dateStr}`,
       prospect.prospect_phone ? `📱 Llamar: ${prospect.prospect_phone}` : null,
-    ].filter(Boolean).join('\n')
+      planInfo ? `📡 Interesado en: ${planInfo}` : null,
+      '',
+      'Recuerda contactarlo hoy.',
+    ].filter(v => v !== null).join('\n')
 
     return this.sendWhatsApp(seller.phone, seller.callmebot_apikey, message)
   },
@@ -43,7 +43,11 @@ export const sellerNotificationService = {
   },
 
   async testNotification(phone, apikey) {
-    const message = '✅ MiPlan.pe — Notificaciones configuradas correctamente 🎉'
+    const message = [
+      '✅ MiPlan.pe — Notificaciones activadas',
+      'Recibirás recordatorios de seguimiento',
+      'cada mañana a las 8am. ¡Bienvenido!',
+    ].join('\n')
     return this.sendWhatsApp(phone, apikey, message)
   },
 }

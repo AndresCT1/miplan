@@ -16,7 +16,7 @@ import {
 } from '../controllers/sellerProspectController.js'
 import {
   handleGetProfile, handleUpdateProfile, handleTestNotification,
-  handleChangePassword,
+  handleTestWhatsApp, handleChangePassword,
 } from '../controllers/sellerProfileController.js'
 import { handleSearch } from '../controllers/sellerSearchController.js'
 import { requireSellerAuth }                              from '../middleware/sellerAuth.js'
@@ -48,6 +48,7 @@ router.get ('/search',              requireSellerAuth,  handleSearch)
 router.get ('/profile',                    requireSellerAuth,                   handleGetProfile)
 router.put ('/profile',                    requireSellerAuth,                   handleUpdateProfile)
 router.post('/profile/test-notification',  requireSellerAuth,                   handleTestNotification)
+router.post('/profile/test-whatsapp',      requireSellerAuth,                   handleTestWhatsApp)
 router.put ('/profile/change-password',    requireSellerAuth, changePasswordLimiter, handleChangePassword)
 
 // Clients

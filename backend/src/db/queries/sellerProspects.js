@@ -255,11 +255,13 @@ export async function getAllTodayFollowUpsWithSellers() {
     `SELECT sp.id, sp.prospect_name, sp.prospect_phone,
             sp.next_contact_date,
             o.name AS operator_name,
+            p.name AS plan_name,
             s.id AS seller_id, s.name AS seller_name,
             s.phone AS seller_phone, s.callmebot_apikey
      FROM seller_prospects sp
      JOIN sellers   s ON s.id = sp.seller_id
      LEFT JOIN operators o ON o.id = sp.operator_id
+     LEFT JOIN plans     p ON p.id = sp.plan_id
      WHERE sp.next_contact_date = CURRENT_DATE
        AND sp.status NOT IN ('cerrado','perdido')
        AND s.callmebot_apikey IS NOT NULL

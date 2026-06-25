@@ -39,6 +39,30 @@ export async function handleTestNotification(req, res, next) {
   } catch (err) { next(err) }
 }
 
+export async function handleTestWhatsApp(req, res, next) {
+  try {
+    const profile = await getProfile(req.seller.sellerId)
+    if (!profile?.callmebot_apikey) {
+      return respond(res, 422, null,
+        'Necesitas tu API key de CallMeBot. ' +
+        'Sigue los pasos: 1) Guarda +34 694 242 562 en tus contactos, ' +
+        '2) Envíale "I allow callmebot to send me messages", ' +
+        '3) Copia la API key que te responde y pégala en tu perfil.'
+      )
+    }
+    const message = [
+      '✅ MiPlan.pe — Notificaciones activadas',
+      'Recibirás recordatorios de seguimiento',
+      'cada mañana a las 8am. ¡Bienvenido!',
+    ].join('\n')
+    const sent = await sellerNotificationService.sendWhatsApp(
+      profile.phone, profile.callmebot_apikey, message
+    )
+    if (!sent) return respond(res, 502, null, 'No se pudo enviar. Verifica tu API key y número.')
+    respond(res, 200, { message: 'Mensaje de prueba enviado a tu WhatsApp' })
+  } catch (err) { next(err) }
+}
+
 export async function handleChangePassword(req, res, next) {
   try {
     const { currentPassword, newPassword } = req.body ?? {}

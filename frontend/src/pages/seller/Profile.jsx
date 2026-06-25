@@ -91,7 +91,7 @@ export default function Profile() {
   const handleTest = async () => {
     setTesting(true); setError(null); setSuccess('')
     try {
-      await sellerService.testNotification()
+      await sellerService.testWhatsApp()
       setSuccess('✅ Mensaje de prueba enviado a tu WhatsApp')
       setTimeout(() => setSuccess(''), 5000)
     } catch (err) {
@@ -159,6 +159,25 @@ export default function Profile() {
       <form onSubmit={handleSave} className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-4">
         <h2 className="font-semibold text-gray-800 text-sm uppercase tracking-wide">Notificaciones WhatsApp</h2>
 
+        {/* Banner de estado */}
+        {profile?.callmebot_apikey ? (
+          <div className="flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-xl">
+            <span className="text-green-600 text-lg">✅</span>
+            <div>
+              <p className="text-sm font-semibold text-green-800">Recordatorios WhatsApp activos</p>
+              <p className="text-xs text-green-600">Recibirás avisos cada mañana a las 8am</p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 px-4 py-3 bg-yellow-50 border border-yellow-200 rounded-xl">
+            <span className="text-yellow-500 text-lg">⚠️</span>
+            <div>
+              <p className="text-sm font-semibold text-yellow-800">Activa tus recordatorios de WhatsApp</p>
+              <p className="text-xs text-yellow-700">Sigue los pasos para recibir avisos de seguimiento</p>
+            </div>
+          </div>
+        )}
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Tu número WhatsApp</label>
           <input
@@ -193,39 +212,52 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Instrucciones */}
-        <div className="bg-blue-50 rounded-xl p-4 space-y-2">
-          <p className="text-sm font-semibold text-blue-800">¿Cómo obtener tu API Key?</p>
-          <ol className="text-xs text-blue-700 space-y-1.5 list-none">
-            <li>1. Agrega <strong>+34 694 242 562</strong> a tus contactos de WhatsApp</li>
-            <li>2. Envíale exactamente: <code className="bg-blue-100 px-1 rounded">I allow callmebot to send me messages</code></li>
-            <li>3. Recibirás un mensaje con tu API Key</li>
-            <li>4. Pega la API Key aquí y presiona Guardar</li>
+        {/* Instrucciones numeradas */}
+        <div className="bg-blue-50 rounded-xl p-4 space-y-2.5">
+          <p className="text-sm font-semibold text-blue-800">¿Cómo activar las notificaciones?</p>
+          <ol className="text-xs text-blue-700 space-y-2 list-none">
+            <li className="flex gap-2">
+              <span className="font-bold shrink-0">Paso 1:</span>
+              <span>Guarda este número en tus contactos: <strong>+34 694 242 562 (CallMeBot)</strong></span>
+            </li>
+            <li className="flex gap-2">
+              <span className="font-bold shrink-0">Paso 2:</span>
+              <span>Envíale por WhatsApp exactamente: <code className="bg-blue-100 px-1.5 py-0.5 rounded font-mono">I allow callmebot to send me messages</code></span>
+            </li>
+            <li className="flex gap-2">
+              <span className="font-bold shrink-0">Paso 3:</span>
+              <span>Copia la API key que te responde</span>
+            </li>
+            <li className="flex gap-2">
+              <span className="font-bold shrink-0">Paso 4:</span>
+              <span>Pégala en el campo de arriba y presiona <strong>Guardar</strong></span>
+            </li>
           </ol>
         </div>
 
         {error   && <p className="text-red-600 text-sm">{error}</p>}
         {success && <p className="text-green-600 text-sm font-medium">{success}</p>}
 
-        <div className="flex gap-3">
+        <button
+          type="submit"
+          disabled={saving}
+          className="w-full py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold text-sm rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          {saving ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Guardando...</> : 'Guardar'}
+        </button>
+
+        {profile?.callmebot_apikey && profile?.phone && (
           <button
-            type="submit"
-            disabled={saving}
-            className="flex-1 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold text-sm rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            type="button"
+            onClick={handleTest}
+            disabled={testing}
+            className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {saving ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Guardando...</> : 'Guardar'}
+            {testing
+              ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Enviando prueba...</>
+              : '📱 Probar ahora'}
           </button>
-          {profile?.callmebot_apikey && profile?.phone && (
-            <button
-              type="button"
-              onClick={handleTest}
-              disabled={testing}
-              className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {testing ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Enviando...</> : '🧪 Probar'}
-            </button>
-          )}
-        </div>
+        )}
       </form>
 
       {/* J — Cambiar contraseña */}

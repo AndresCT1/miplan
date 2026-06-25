@@ -70,6 +70,7 @@ export const sellerService = {
   getProfile:       ()      => api.get('/seller/profile'),
   updateProfile:    (data)  => api.put('/seller/profile', data),
   testNotification: ()      => api.post('/seller/profile/test-notification'),
+  testWhatsApp:     ()      => api.post('/seller/profile/test-whatsapp'),
   changePassword:   (data)  => api.put('/seller/profile/change-password', data),
   // Clients
   getClients:     (params)  => api.get('/seller/clients', { params }),

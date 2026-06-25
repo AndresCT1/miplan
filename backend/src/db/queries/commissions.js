@@ -15,7 +15,7 @@ export async function getAllCommissions() {
 export async function getSellerCatalog() {
   const { rows } = await pool.query(
     `SELECT
-       o.id, o.name, o.slug, o.logo_url,
+       o.id, o.name, o.slug, o.logo_url, o.brand_color,
        COALESCE(oc.commission_pct, 0) AS commission_pct,
        COALESCE(
          JSON_AGG(
@@ -33,7 +33,7 @@ export async function getSellerCatalog() {
      LEFT JOIN operator_commissions oc ON oc.operator_id = o.id
      LEFT JOIN plans p ON p.operator_id = o.id AND p.active = true
      WHERE o.active = true
-     GROUP BY o.id, o.name, o.slug, o.logo_url, oc.commission_pct
+     GROUP BY o.id, o.name, o.slug, o.logo_url, o.brand_color, oc.commission_pct
      ORDER BY o.name`
   )
   return rows

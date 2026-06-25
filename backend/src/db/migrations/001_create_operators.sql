@@ -13,5 +13,5 @@ INSERT INTO operators (slug, name, brand_color) VALUES
   ('claro',    'Claro',    '#DA291C'),
   ('wow',      'WOW',      '#FF6B00'),
   ('win',      'WIN',      '#6C2D91'),
-  ('mi-fibra', 'Mi Fibra', '#00A651')
+  ('mifibra',  'Mi Fibra', '#E91E8C')
 ON CONFLICT (slug) DO NOTHING;

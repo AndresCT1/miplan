@@ -1,5 +1,4 @@
 import { pool } from '../connection.js'
-import { createClient } from './sellerClients.js'
 
 const SELECT_PROSPECT = `
   sp.id, sp.seller_id, sp.prospect_name, sp.prospect_phone,
@@ -82,27 +81,59 @@ export async function incrementProspectAttempts(id, sellerId) {
   const { rows } = await pool.query(
     `UPDATE seller_prospects
      SET contact_attempts = contact_attempts + 1, updated_at = NOW()
-     WHERE id = $2 AND seller_id = $3
+     WHERE id = $1 AND seller_id = $2
      RETURNING id, contact_attempts, updated_at`,
-    [id, id, sellerId]
+    [id, sellerId]
   )
   return rows[0] ?? null
 }
 
 export async function convertProspectToClient(prospectId, sellerId, clientData) {
-  const client = await createClient({ sellerId, ...clientData })
+  const {
+    clientName, clientPhone, operatorId, planId,
+    regularPrice, commissionPct, installationDate, notes,
+  } = clientData
 
-  const { rows } = await pool.query(
-    `UPDATE seller_prospects
-     SET status = 'cerrado',
-         converted_to_client_id = $1,
-         updated_at = NOW()
-     WHERE id = $2 AND seller_id = $3
-     RETURNING id, status, converted_to_client_id`,
-    [client.id, prospectId, sellerId]
-  )
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
 
-  return { client, prospect: rows[0] }
+    // 1. Crear cliente
+    const { rows: [newClient] } = await client.query(
+      `INSERT INTO seller_clients
+         (seller_id, client_name, client_phone, operator_id, plan_id,
+          regular_price, commission_pct, installation_date, notes)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+       RETURNING id, client_name, client_phone, regular_price, commission_pct,
+                 commission_amount, installation_date, commission_status, created_at`,
+      [sellerId, clientName, clientPhone || null, operatorId || null, planId || null,
+       regularPrice, commissionPct, installationDate, notes || null]
+    )
+
+    // 2. Marcar prospecto como cerrado (verifica seller_id por seguridad)
+    const { rows: [updatedProspect] } = await client.query(
+      `UPDATE seller_prospects
+       SET status = 'cerrado',
+           converted_to_client_id = $1,
+           updated_at = NOW()
+       WHERE id = $2 AND seller_id = $3
+       RETURNING id, status, converted_to_client_id`,
+      [newClient.id, prospectId, sellerId]
+    )
+
+    if (!updatedProspect) {
+      // El prospecto no existe o no pertenece a este vendedor
+      throw new Error('Prospecto no encontrado o no autorizado')
+    }
+
+    await client.query('COMMIT')
+    return { client: newClient, prospect: updatedProspect }
+  } catch (err) {
+    await client.query('ROLLBACK')
+    throw err
+  } finally {
+    client.release()
+  }
 }
 
 export async function getTodayFollowUps(sellerId) {

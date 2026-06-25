@@ -64,10 +64,13 @@ export const sellerService = {
   createSale:     (data)    => api.post('/seller/sales', data),
   updateSale:     (id, data)=> api.put(`/seller/sales/${id}`, data),
   markContacted:  (id)      => api.post(`/seller/sales/${id}/contacted`),
+  // Search
+  search:         (q)       => api.get('/seller/search', { params: { q } }),
   // Profile
-  getProfile:     ()        => api.get('/seller/profile'),
-  updateProfile:  (data)    => api.put('/seller/profile', data),
+  getProfile:       ()      => api.get('/seller/profile'),
+  updateProfile:    (data)  => api.put('/seller/profile', data),
   testNotification: ()      => api.post('/seller/profile/test-notification'),
+  changePassword:   (data)  => api.put('/seller/profile/change-password', data),
   // Clients
   getClients:     (params)  => api.get('/seller/clients', { params }),
   createClient:   (data)    => api.post('/seller/clients', data),

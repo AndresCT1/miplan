@@ -14,6 +14,31 @@ function EyeIcon({ visible }) {
   )
 }
 
+function PasswordInput({ value, onChange, placeholder = '••••••••', autoComplete }) {
+  const [show, setShow] = useState(false)
+  return (
+    <div className="relative">
+      <input
+        type={show ? 'text' : 'password'}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        autoComplete={autoComplete}
+        className="w-full px-4 py-2.5 pr-11 rounded-xl border border-gray-200 text-sm
+                   focus:outline-none focus:ring-2 focus:ring-green-500"
+      />
+      <button
+        type="button"
+        onClick={() => setShow(s => !s)}
+        aria-label={show ? 'Ocultar' : 'Mostrar'}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+      >
+        <EyeIcon visible={show} />
+      </button>
+    </div>
+  )
+}
+
 export default function Profile() {
   const [profile,      setProfile]      = useState(null)
   const [loading,      setLoading]      = useState(true)
@@ -23,6 +48,12 @@ export default function Profile() {
   const [success,      setSuccess]      = useState('')
   const [showApiKey,   setShowApiKey]   = useState(false)
   const [form,         setForm]         = useState({ phone: '', callmebot_apikey: '' })
+
+  // J — Change password
+  const [pwForm,   setPwForm]   = useState({ currentPassword: '', newPassword: '', confirm: '' })
+  const [pwError,  setPwError]  = useState('')
+  const [pwSuccess,setPwSuccess]= useState('')
+  const [pwSaving, setPwSaving] = useState(false)
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -67,6 +98,35 @@ export default function Profile() {
       setError(err.message || 'No se pudo enviar el mensaje de prueba')
     } finally {
       setTesting(false)
+    }
+  }
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault()
+    setPwError(''); setPwSuccess('')
+    const { currentPassword, newPassword, confirm } = pwForm
+    if (!currentPassword || !newPassword || !confirm) {
+      setPwError('Completa todos los campos'); return
+    }
+    if (newPassword.length < 6) {
+      setPwError('La nueva contraseña debe tener mínimo 6 caracteres'); return
+    }
+    if (newPassword === currentPassword) {
+      setPwError('La nueva contraseña debe ser diferente a la actual'); return
+    }
+    if (newPassword !== confirm) {
+      setPwError('Las contraseñas no coinciden'); return
+    }
+    setPwSaving(true)
+    try {
+      await sellerService.changePassword({ currentPassword, newPassword })
+      setPwSuccess('✅ Contraseña cambiada correctamente')
+      setPwForm({ currentPassword: '', newPassword: '', confirm: '' })
+      setTimeout(() => setPwSuccess(''), 5000)
+    } catch (err) {
+      setPwError(err.message || 'Error al cambiar la contraseña')
+    } finally {
+      setPwSaving(false)
     }
   }
 
@@ -166,6 +226,57 @@ export default function Profile() {
             </button>
           )}
         </div>
+      </form>
+
+      {/* J — Cambiar contraseña */}
+      <form onSubmit={handleChangePassword}
+            className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-4">
+        <h2 className="font-semibold text-gray-800 text-sm uppercase tracking-wide">
+          🔒 Cambiar contraseña
+        </h2>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña actual</label>
+          <PasswordInput
+            value={pwForm.currentPassword}
+            onChange={e => setPwForm(f => ({ ...f, currentPassword: e.target.value }))}
+            placeholder="Tu contraseña actual"
+            autoComplete="current-password"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Nueva contraseña</label>
+          <PasswordInput
+            value={pwForm.newPassword}
+            onChange={e => setPwForm(f => ({ ...f, newPassword: e.target.value }))}
+            placeholder="Mínimo 6 caracteres"
+            autoComplete="new-password"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar nueva contraseña</label>
+          <PasswordInput
+            value={pwForm.confirm}
+            onChange={e => setPwForm(f => ({ ...f, confirm: e.target.value }))}
+            placeholder="Repite la nueva contraseña"
+            autoComplete="new-password"
+          />
+        </div>
+
+        {pwError   && <p className="text-red-600 text-sm">{pwError}</p>}
+        {pwSuccess && <p className="text-green-600 text-sm font-medium">{pwSuccess}</p>}
+
+        <button
+          type="submit"
+          disabled={pwSaving}
+          className="w-full py-2.5 bg-gray-800 hover:bg-gray-900 text-white font-semibold
+                     text-sm rounded-xl transition-colors disabled:opacity-50
+                     flex items-center justify-center gap-2"
+        >
+          {pwSaving
+            ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Cambiando...</>
+            : 'Cambiar contraseña'}
+        </button>
       </form>
     </div>
   )

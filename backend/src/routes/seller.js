@@ -16,9 +16,11 @@ import {
 } from '../controllers/sellerProspectController.js'
 import {
   handleGetProfile, handleUpdateProfile, handleTestNotification,
+  handleChangePassword,
 } from '../controllers/sellerProfileController.js'
-import { requireSellerAuth }  from '../middleware/sellerAuth.js'
-import { sellerLoginLimiter } from '../middleware/rateLimiter.js'
+import { handleSearch } from '../controllers/sellerSearchController.js'
+import { requireSellerAuth }                              from '../middleware/sellerAuth.js'
+import { sellerLoginLimiter, changePasswordLimiter }      from '../middleware/rateLimiter.js'
 
 const router = Router()
 
@@ -39,10 +41,14 @@ router.post('/sales',               requireSellerAuth,  sellerCreateSale)
 router.put ('/sales/:id',           requireSellerAuth,  sellerUpdateSale)
 router.post('/sales/:id/contacted', requireSellerAuth,  sellerMarkContacted)
 
+// Search
+router.get ('/search',              requireSellerAuth,  handleSearch)
+
 // Profile
-router.get ('/profile',             requireSellerAuth,  handleGetProfile)
-router.put ('/profile',             requireSellerAuth,  handleUpdateProfile)
-router.post('/profile/test-notification', requireSellerAuth, handleTestNotification)
+router.get ('/profile',                    requireSellerAuth,                   handleGetProfile)
+router.put ('/profile',                    requireSellerAuth,                   handleUpdateProfile)
+router.post('/profile/test-notification',  requireSellerAuth,                   handleTestNotification)
+router.put ('/profile/change-password',    requireSellerAuth, changePasswordLimiter, handleChangePassword)
 
 // Clients
 router.get ('/clients',             requireSellerAuth,  handleGetClients)

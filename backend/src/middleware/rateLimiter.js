@@ -49,3 +49,12 @@ export const resetPasswordLimiter = rateLimit({
   legacyHeaders: false,
   message: { success: false, data: null, error: 'Demasiados resets de contraseña. Espera 1 minuto.' },
 })
+
+export const changePasswordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  skipSuccessfulRequests: true,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, data: null, error: 'Demasiados intentos. Espera 15 minutos.' },
+})

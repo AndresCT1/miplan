@@ -29,6 +29,22 @@ export async function updateProfile(sellerId, { phone, callmebot_apikey }) {
   return rows[0] ?? null
 }
 
+export async function getSellerPasswordHash(sellerId) {
+  const { rows } = await pool.query(
+    `SELECT password_hash FROM sellers WHERE id = $1 AND active = true`,
+    [sellerId]
+  )
+  return rows[0]?.password_hash ?? null
+}
+
+export async function updateSellerPassword(sellerId, passwordHash) {
+  const { rowCount } = await pool.query(
+    `UPDATE sellers SET password_hash = $1 WHERE id = $2 AND active = true`,
+    [passwordHash, sellerId]
+  )
+  return rowCount > 0
+}
+
 export async function getSellerForNotification(sellerId) {
   const { rows } = await pool.query(
     `SELECT id, name, phone, callmebot_apikey

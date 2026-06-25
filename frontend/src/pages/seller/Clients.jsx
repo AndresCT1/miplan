@@ -8,6 +8,13 @@ function extractRegularPrice(features = []) {
   return m ? parseFloat(m[1]) : null
 }
 
+function formatDate(val) {
+  if (!val) return 'Sin fecha'
+  const d = val instanceof Date ? val : new Date(val)
+  if (isNaN(d.getTime())) return 'Sin fecha'
+  return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
 // ── Modal: Nuevo cliente ──────────────────────────────────────────────────────
 function NewClientModal({ catalog, onClose, onCreated }) {
   const [form, setForm] = useState({
@@ -275,7 +282,7 @@ export default function Clients() {
                   </div>
                   {c.commission_paid_at && (
                     <p className="text-xs text-gray-400 mt-2">
-                      ✅ Pagado el {new Date(c.commission_paid_at).toLocaleDateString('es-PE', { day:'2-digit', month:'long', year:'numeric' })}
+                      ✅ Pagado el {formatDate(c.commission_paid_at)}
                     </p>
                   )}
                 </div>
@@ -328,7 +335,7 @@ export default function Clients() {
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-semibold text-green-700">S/ {parseFloat(c.commission_amount).toFixed(2)}</p>
                     <p className="text-xs text-gray-400">
-                      Instalación: {new Date(c.installation_date + 'T00:00:00').toLocaleDateString('es-PE')}
+                      Instalación: {formatDate(c.installation_date)}
                     </p>
                   </div>
                   {/* Notas */}
@@ -378,7 +385,7 @@ export default function Clients() {
                         <td className="px-4 py-3 text-gray-600">{c.operator_name}</td>
                         <td className="px-4 py-3 text-gray-600 max-w-[160px] truncate">{c.plan_name}</td>
                         <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">
-                          {new Date(c.installation_date + 'T00:00:00').toLocaleDateString('es-PE')}
+                          {formatDate(c.installation_date)}
                         </td>
                         <td className="px-4 py-3 font-semibold text-green-700 whitespace-nowrap">
                           S/ {parseFloat(c.commission_amount).toFixed(2)}

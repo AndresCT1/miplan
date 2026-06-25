@@ -1,6 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { sellerService } from '../../services/api'
 
+function formatDate(val) {
+  if (!val) return '—'
+  const d = val instanceof Date ? val : new Date(val)
+  if (isNaN(d.getTime())) return '—'
+  return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
 const STATUS_LABELS = {
   pending:   { label: 'Pendiente',  color: 'bg-yellow-100 text-yellow-700' },
   contacted: { label: 'Contactado', color: 'bg-blue-100 text-blue-700'    },
@@ -311,7 +318,7 @@ export default function MySales() {
                   {sale.follow_up_date && (
                     <p className="text-xs text-orange-500 font-medium">
                       📅 Seguimiento:{' '}
-                      {new Date(sale.follow_up_date + 'T00:00:00').toLocaleDateString('es-PE')}
+                      {formatDate(sale.follow_up_date)}
                     </p>
                   )}
 
@@ -382,7 +389,7 @@ export default function MySales() {
                       </td>
                       <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">
                         {sale.follow_up_date
-                          ? new Date(sale.follow_up_date + 'T00:00:00').toLocaleDateString('es-PE')
+                          ? formatDate(sale.follow_up_date)
                           : '—'}
                       </td>
                       <td className="px-4 py-3 text-xs text-gray-500 max-w-[150px] truncate">

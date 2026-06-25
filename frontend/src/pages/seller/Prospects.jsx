@@ -14,9 +14,27 @@ const SOURCES = ['facebook','instagram','referido','whatsapp','otro']
 
 const todayStr = () => new Date().toISOString().split('T')[0]
 
-function daysSinceDate(dateStr) {
-  if (!dateStr) return null
-  return Math.floor((Date.now() - new Date(dateStr)) / 86400000)
+// Extrae "YYYY-MM-DD" de un valor Date o ISO string — seguro para comparaciones
+function toDateStr(val) {
+  if (!val) return null
+  if (typeof val === 'string') return val.slice(0, 10)
+  if (val instanceof Date)     return val.toISOString().slice(0, 10)
+  return null
+}
+
+// Formatea cualquier fecha (Date obj, ISO string o "YYYY-MM-DD") para mostrar al usuario
+function formatDate(val) {
+  if (!val) return 'Sin fecha'
+  const d = val instanceof Date ? val : new Date(val)
+  if (isNaN(d.getTime())) return 'Sin fecha'
+  return d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
+function daysSinceDate(val) {
+  if (!val) return null
+  const d = val instanceof Date ? val : new Date(val)
+  if (isNaN(d.getTime())) return null
+  return Math.floor((Date.now() - d.getTime()) / 86400000)
 }
 
 function StatusBadge({ status }) {
@@ -347,12 +365,13 @@ function ConvertModal({ prospect, catalog, onClose, onConverted }) {
 function ProspectCard({ prospect: p, onStatusChange, onNextContact, onAttempt, onConvert }) {
   const [showActions,   setShowActions]   = useState(false)
   const [showSchedule,  setShowSchedule]  = useState(false)
-  const [scheduleDate,  setScheduleDate]  = useState(p.next_contact_date?.split('T')[0] ?? '')
+  const [scheduleDate,  setScheduleDate]  = useState(toDateStr(p.next_contact_date) ?? '')
   const [savingDate,    setSavingDate]    = useState(false)
   const [savingAttempt, setSavingAttempt] = useState(false)
 
-  const isToday = p.next_contact_date === todayStr()
-  const isPast  = p.next_contact_date && p.next_contact_date < todayStr()
+  const nextStr = toDateStr(p.next_contact_date)
+  const isToday = nextStr === todayStr()
+  const isPast  = nextStr && nextStr < todayStr()
 
   const handleAttempt = async () => {
     setSavingAttempt(true)
@@ -396,17 +415,33 @@ function ProspectCard({ prospect: p, onStatusChange, onNextContact, onAttempt, o
       </div>
 
       {/* Próximo contacto */}
-      {p.next_contact_date && (
+      {nextStr && (
         <p className={`text-xs font-semibold ${
           isPast   ? 'text-red-500' :
           isToday  ? 'text-green-600' : 'text-gray-500'
         }`}>
           📅 {isToday ? '¡Hoy!' : isPast ? 'Venció el' : 'Próximo:'}{' '}
-          {new Date(p.next_contact_date + 'T00:00:00').toLocaleDateString('es-PE')}
+          {formatDate(p.next_contact_date)}
         </p>
       )}
 
-      {/* Botones rápidos */}
+      {/* Banner: cerrado pero sin convertir → acción pendiente */}
+      {p.status === 'cerrado' && !p.converted_to_client_id && (
+        <div className="bg-amber-50 border border-amber-300 rounded-lg px-3 py-2.5 flex items-center justify-between gap-2">
+          <p className="text-xs font-semibold text-amber-800">
+            ⚠️ Pendiente de registrar como cliente
+          </p>
+          <button
+            onClick={() => onConvert(p)}
+            className="text-xs font-bold text-amber-700 bg-amber-100 px-2.5 py-1 rounded-lg
+                       hover:bg-amber-200 transition-colors whitespace-nowrap"
+          >
+            Registrar →
+          </button>
+        </div>
+      )}
+
+      {/* Botones rápidos — activos e interesados/propuesta */}
       {!['cerrado','perdido'].includes(p.status) && (
         <div className="flex flex-wrap gap-2 pt-1">
           <button onClick={handleAttempt} disabled={savingAttempt}
@@ -423,7 +458,7 @@ function ProspectCard({ prospect: p, onStatusChange, onNextContact, onAttempt, o
           </button>
           {['interesado','propuesta'].includes(p.status) && (
             <button onClick={() => onConvert(p)}
-                    className="w-full py-2 text-xs font-semibold bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    className="w-full py-2.5 text-sm font-bold bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
               ✅ Convertir a cliente
             </button>
           )}

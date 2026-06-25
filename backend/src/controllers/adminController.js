@@ -24,12 +24,12 @@ import { respond } from '../utils/respond.js'
 
 const VALID_STATUSES = ['pending', 'contacted', 'interested', 'closed', 'lost']
 
-const isProd = process.env.NODE_ENV === 'production'
+const isDev = process.env.NODE_ENV === 'development'
 
 const COOKIE_OPTS = {
   httpOnly: true,
-  secure:   isProd,
-  sameSite: isProd ? 'none' : 'lax',
+  secure:   !isDev,
+  sameSite: isDev ? 'lax' : 'none',
   maxAge:   8 * 60 * 60 * 1000, // 8 h
 }
 

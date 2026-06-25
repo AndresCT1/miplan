@@ -73,14 +73,18 @@ function NewClientModal({ catalog, onClose, onCreated }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50">
+    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/50">
       <div className="bg-white w-full sm:max-w-lg sm:rounded-2xl shadow-xl
-                      rounded-t-2xl max-h-[92vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 sticky top-0 bg-white">
+                      rounded-t-2xl flex flex-col max-h-[92vh]">
+        {/* Header sticky */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
           <h2 className="text-lg font-semibold text-gray-900">Nuevo cliente</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
         </div>
-        <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4">
+
+        {/* Form con campos scrollables + botón sticky */}
+        <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
+        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del cliente *</label>
@@ -142,6 +146,10 @@ function NewClientModal({ catalog, onClose, onCreated }) {
             <textarea value={form.notes} onChange={set('notes')} rows={2}
                       className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-none" />
           </div>
+        </div>
+
+        {/* Botón sticky al fondo — pb-8 mobile por safe area, pb-4 desktop */}
+        <div className="px-5 pt-3 pb-8 md:pb-4 border-t border-gray-100 bg-white shrink-0 space-y-2">
           {error && <p className="text-red-600 text-sm">{error}</p>}
           <button type="submit" disabled={loading}
                   className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-semibold text-sm rounded-xl
@@ -150,6 +158,7 @@ function NewClientModal({ catalog, onClose, onCreated }) {
               ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Registrando...</>
               : '✅ Registrar cliente'}
           </button>
+        </div>
         </form>
       </div>
     </div>

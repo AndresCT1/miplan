@@ -97,65 +97,70 @@ function NewProspectModal({ catalog, onClose, onCreated }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50">
-      <div className="bg-white w-full sm:max-w-lg sm:rounded-2xl shadow-xl rounded-t-2xl max-h-[92vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 sticky top-0 bg-white">
+    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/50">
+      <div className="bg-white w-full sm:max-w-lg sm:rounded-2xl shadow-xl rounded-t-2xl
+                      flex flex-col max-h-[92vh]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
           <h2 className="text-lg font-semibold text-gray-900">Nuevo prospecto</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
         </div>
-        <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2 sm:col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
-              <input type="text" value={form.prospectName} onChange={set('prospectName')} placeholder="Juan Pérez"
-                     className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+        <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
+          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2 sm:col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+                <input type="text" value={form.prospectName} onChange={set('prospectName')} placeholder="Juan Pérez"
+                       className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              </div>
+              <div className="col-span-2 sm:col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Celular</label>
+                <input type="tel" value={form.prospectPhone} onChange={set('prospectPhone')} placeholder="9XXXXXXXX" maxLength={9} inputMode="numeric"
+                       className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              </div>
             </div>
-            <div className="col-span-2 sm:col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Celular</label>
-              <input type="tel" value={form.prospectPhone} onChange={set('prospectPhone')} placeholder="9XXXXXXXX" maxLength={9} inputMode="numeric"
-                     className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Fuente</label>
-            <select value={form.source} onChange={set('source')}
-                    className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500">
-              {SOURCES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
-            </select>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Operador</label>
-              <select value={form.operatorId} onChange={set('operatorId')}
+              <label className="block text-sm font-medium text-gray-700 mb-1">Fuente</label>
+              <select value={form.source} onChange={set('source')}
                       className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500">
-                <option value="">—</option>
-                {catalog.map(op => <option key={op.id} value={op.id}>{op.name}</option>)}
+                {SOURCES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
               </select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Operador</label>
+                <select value={form.operatorId} onChange={set('operatorId')}
+                        className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                  <option value="">—</option>
+                  {catalog.map(op => <option key={op.id} value={op.id}>{op.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Plan</label>
+                <select value={form.planId} onChange={set('planId')} disabled={!selectedOp}
+                        className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50">
+                  <option value="">—</option>
+                  {selectedOp?.plans?.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+              </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Plan</label>
-              <select value={form.planId} onChange={set('planId')} disabled={!selectedOp}
-                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50">
-                <option value="">—</option>
-                {selectedOp?.plans?.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Próximo contacto</label>
+              <input type="date" value={form.nextContactDate} onChange={set('nextContactDate')}
+                     className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+              <textarea value={form.notes} onChange={set('notes')} rows={2}
+                        className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-none" />
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Próximo contacto</label>
-            <input type="date" value={form.nextContactDate} onChange={set('nextContactDate')}
-                   className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+          <div className="px-5 pt-3 pb-8 md:pb-4 border-t border-gray-100 bg-white shrink-0 space-y-2">
+            {error && <p className="text-red-600 text-sm">{error}</p>}
+            <button type="submit" disabled={loading}
+                    className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-semibold text-sm rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+              {loading ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Creando...</> : 'Agregar prospecto'}
+            </button>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notas</label>
-            <textarea value={form.notes} onChange={set('notes')} rows={2}
-                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-none" />
-          </div>
-          {error && <p className="text-red-600 text-sm">{error}</p>}
-          <button type="submit" disabled={loading}
-                  className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-semibold text-sm rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
-            {loading ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Creando...</> : 'Agregar prospecto'}
-          </button>
         </form>
       </div>
     </div>
@@ -234,7 +239,7 @@ function ConvertModal({ prospect, catalog, onClose, onConverted }) {
 
   // Pantalla de éxito
   if (success) return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 text-center space-y-4">
         <div className="text-5xl">🎉</div>
         <h3 className="text-xl font-bold text-gray-900">¡Venta cerrada!</h3>
@@ -256,83 +261,82 @@ function ConvertModal({ prospect, catalog, onClose, onConverted }) {
   )
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50">
-      <div className="bg-white w-full sm:max-w-lg sm:rounded-2xl shadow-xl rounded-t-2xl max-h-[92vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 sticky top-0 bg-white">
+    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/50">
+      <div className="bg-white w-full sm:max-w-lg sm:rounded-2xl shadow-xl rounded-t-2xl
+                      flex flex-col max-h-[92vh]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">Convertir a cliente</h2>
             <p className="text-xs text-gray-400 mt-0.5">Datos pre-llenados del prospecto</p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
         </div>
-        <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4">
-          {/* Datos pre-llenados */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del cliente *</label>
-              <input value={form.clientName} onChange={set('clientName')}
-                     className="w-full px-3 py-2.5 rounded-xl border border-green-300 bg-green-50 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+        <form onSubmit={handleSubmit} className="flex flex-col min-h-0 flex-1">
+          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del cliente *</label>
+                <input value={form.clientName} onChange={set('clientName')}
+                       className="w-full px-3 py-2.5 rounded-xl border border-green-300 bg-green-50 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Celular</label>
+                <input value={form.clientPhone} onChange={set('clientPhone')} maxLength={9} inputMode="numeric"
+                       className="w-full px-3 py-2.5 rounded-xl border border-green-300 bg-green-50 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Fecha instalación *</label>
+                <input type="date" value={form.installationDate} onChange={set('installationDate')}
+                       className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Operador</label>
+                <select value={form.operatorId} onChange={set('operatorId')}
+                        className="w-full px-3 py-2.5 rounded-xl border border-green-300 bg-green-50 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                  <option value="">—</option>
+                  {catalog.map(op => <option key={op.id} value={op.id}>{op.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Plan</label>
+                <select value={form.planId} onChange={set('planId')} disabled={!selectedOp}
+                        className="w-full px-3 py-2.5 rounded-xl border border-green-300 bg-green-50 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50">
+                  <option value="">—</option>
+                  {selectedOp?.plans?.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Precio regular S/ *</label>
+                <input type="number" step="0.01" value={form.regularPrice} onChange={set('regularPrice')}
+                       className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Comisión %</label>
+                <input type="number" step="0.01" value={form.commissionPct} onChange={set('commissionPct')}
+                       className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              </div>
             </div>
+            {commissionAmt && parseFloat(commissionAmt) > 0 && (
+              <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+                <p className="text-xs text-green-600">Comisión estimada</p>
+                <p className="text-2xl font-extrabold text-green-700">S/ {commissionAmt}</p>
+              </div>
+            )}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Celular</label>
-              <input value={form.clientPhone} onChange={set('clientPhone')} maxLength={9} inputMode="numeric"
-                     className="w-full px-3 py-2.5 rounded-xl border border-green-300 bg-green-50 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Fecha instalación *</label>
-              <input type="date" value={form.installationDate} onChange={set('installationDate')}
-                     className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Operador</label>
-              <select value={form.operatorId} onChange={set('operatorId')}
-                      className="w-full px-3 py-2.5 rounded-xl border border-green-300 bg-green-50 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500">
-                <option value="">—</option>
-                {catalog.map(op => <option key={op.id} value={op.id}>{op.name}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Plan</label>
-              <select value={form.planId} onChange={set('planId')} disabled={!selectedOp}
-                      className="w-full px-3 py-2.5 rounded-xl border border-green-300 bg-green-50 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50">
-                <option value="">—</option>
-                {selectedOp?.plans?.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Precio regular S/ *</label>
-              <input type="number" step="0.01" value={form.regularPrice} onChange={set('regularPrice')}
-                     className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Comisión %</label>
-              <input type="number" step="0.01" value={form.commissionPct} onChange={set('commissionPct')}
-                     className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              <label className="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+              <textarea value={form.notes} onChange={set('notes')} rows={2}
+                        className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-none" />
             </div>
           </div>
-
-          {/* Comisión en tiempo real */}
-          {commissionAmt && parseFloat(commissionAmt) > 0 && (
-            <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3">
-              <p className="text-xs text-green-600">Comisión estimada</p>
-              <p className="text-2xl font-extrabold text-green-700">S/ {commissionAmt}</p>
-            </div>
-          )}
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notas</label>
-            <textarea value={form.notes} onChange={set('notes')} rows={2}
-                      className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-none" />
+          <div className="px-5 pt-3 pb-8 md:pb-4 border-t border-gray-100 bg-white shrink-0 space-y-2">
+            {error && <p className="text-red-600 text-sm">{error}</p>}
+            <button type="submit" disabled={loading}
+                    className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold text-sm rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+              {loading
+                ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Convirtiendo...</>
+                : '✅ Confirmar conversión'}
+            </button>
           </div>
-
-          {error && <p className="text-red-600 text-sm">{error}</p>}
-
-          <button type="submit" disabled={loading}
-                  className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold text-sm rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
-            {loading
-              ? <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Convirtiendo...</>
-              : '✅ Confirmar conversión'}
-          </button>
         </form>
       </div>
     </div>

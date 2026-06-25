@@ -153,8 +153,10 @@ export default function ChatWidget() {
       navigate(`/operador/${result.actionData.slug}`)
       setIsOpen(false)
     } else if (result.action === 'SAVE_LEAD') {
-      // Guardar phone (y nombre si el backend lo devolvió) para pre-llenar contacto
       saveChatDataToSession(result.actionData?.phone, result.actionData?.name)
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'generate_lead', { event_category: 'chatbot' })
+      }
       setLastAction('SAVE_LEAD')
     } else if (result.action) {
       setLastAction(result.action)

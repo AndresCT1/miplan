@@ -219,6 +219,9 @@ export default function ContactForm({
         operatorId: operatorId || undefined,
         planId:     planId     || undefined,
       })
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'generate_lead', { event_category: 'formulario' })
+      }
       setStatus('success')
     } catch (err) {
       setStatus('error')

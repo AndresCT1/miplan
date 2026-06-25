@@ -89,6 +89,9 @@ export default function PlanCard({
 
   // ── Handlers ──────────────────────────────────────────────────────────────
   const handleSelect = () => {
+    if (typeof gtag !== 'undefined') {
+      gtag('event', 'select_item', { item_name: name })
+    }
     if (onSelect) { onSelect(); return }
     const params = new URLSearchParams({ plan: id })
     if (operatorId) params.set('operator', operatorId)

@@ -158,14 +158,19 @@ function NewClientModal({ catalog, onClose, onCreated }) {
 
 // ── Página principal ──────────────────────────────────────────────────────────
 export default function Clients() {
+  const [view,       setView]       = useState('clients') // 'clients' | 'payments'
   const [clients,    setClients]    = useState([])
   const [total,      setTotal]      = useState(0)
   const [loading,    setLoading]    = useState(true)
   const [error,      setError]      = useState(null)
   const [catalog,    setCatalog]    = useState([])
   const [showModal,  setShowModal]  = useState(false)
-  const [editNotes,  setEditNotes]  = useState(null) // { id, notes }
+  const [editNotes,  setEditNotes]  = useState(null)
   const [filters,    setFilters]    = useState({ status: '', page: 1 })
+  // E — Pagos
+  const [payments,      setPayments]      = useState([])
+  const [totalCobrado,  setTotalCobrado]  = useState(0)
+  const [paymentsLoaded,setPaymentsLoaded]= useState(false)
 
   const fetchClients = useCallback(async () => {
     try {
@@ -196,20 +201,84 @@ export default function Clients() {
     }
   }
 
+  // E — Cargar pagos al cambiar a esa pestaña
+  useEffect(() => {
+    if (view !== 'payments' || paymentsLoaded) return
+    sellerService.getPayments()
+      .then(res => { setPayments(res.payments ?? []); setTotalCobrado(res.total_cobrado ?? 0); setPaymentsLoaded(true) })
+      .catch(() => {})
+  }, [view, paymentsLoaded])
+
   return (
     <div className="space-y-4">
+      {/* Header con tabs */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">Clientes</h1>
-          <p className="text-xs text-gray-400">{total} cliente{total !== 1 ? 's' : ''}</p>
-        </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-xl transition-colors"
-        >
-          ➕ Nuevo cliente
+        <h1 className="text-xl font-bold text-gray-900">Clientes</h1>
+        {view === 'clients' && (
+          <button onClick={() => setShowModal(true)}
+                  className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-xl transition-colors">
+            ➕ Nuevo cliente
+          </button>
+        )}
+      </div>
+
+      {/* Tabs Clientes / Mis Pagos */}
+      <div className="flex gap-2">
+        <button onClick={() => setView('clients')}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors
+                  ${view === 'clients' ? 'bg-green-600 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
+          👥 Mis Clientes
+          <span className="ml-1.5 text-xs opacity-70">({total})</span>
+        </button>
+        <button onClick={() => setView('payments')}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors
+                  ${view === 'payments' ? 'bg-green-600 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
+          💸 Mis Pagos
         </button>
       </div>
+
+      {/* E — Vista Pagos */}
+      {view === 'payments' && (
+        <div className="space-y-4">
+          {totalCobrado > 0 && (
+            <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-center">
+              <p className="text-xs text-green-700 font-medium">Has cobrado en total</p>
+              <p className="text-3xl font-extrabold text-green-700">S/ {totalCobrado.toFixed(2)}</p>
+            </div>
+          )}
+          {payments.length === 0 ? (
+            <div className="text-center py-16 text-gray-400">
+              <p className="text-4xl mb-2">💸</p>
+              <p>Aún no tienes comisiones cobradas</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {payments.map(c => (
+                <div key={c.id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="font-semibold text-gray-900 text-sm">{c.client_name}</p>
+                      <p className="text-xs text-gray-500">{c.operator_name} · {c.plan_name}</p>
+                    </div>
+                    <p className="text-lg font-extrabold text-green-700 shrink-0">
+                      S/ {parseFloat(c.commission_amount).toFixed(2)}
+                    </p>
+                  </div>
+                  {c.commission_paid_at && (
+                    <p className="text-xs text-gray-400 mt-2">
+                      ✅ Pagado el {new Date(c.commission_paid_at).toLocaleDateString('es-PE', { day:'2-digit', month:'long', year:'numeric' })}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Vista Clientes (cuando view === 'clients') */}
+      {view === 'clients' && (
+        <>
 
       {/* Filtro estado */}
       <div className="flex gap-2 overflow-x-auto pb-1">

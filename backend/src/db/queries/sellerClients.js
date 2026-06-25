@@ -96,6 +96,21 @@ export async function updateClientNotes(clientId, sellerId, notes) {
   return rows[0] ?? null
 }
 
+// ── Pagos recibidos (E) ────────────────────────────────────────────────────────
+export async function getPaidClients(sellerId) {
+  const { rows } = await pool.query(
+    `SELECT ${SELECT_CLIENT}
+     FROM seller_clients sc
+     LEFT JOIN operators o ON o.id = sc.operator_id
+     LEFT JOIN plans     p ON p.id = sc.plan_id
+     WHERE sc.seller_id = $1 AND sc.commission_status = 'paid'
+     ORDER BY sc.commission_paid_at DESC`,
+    [sellerId]
+  )
+  const total = rows.reduce((s, r) => s + parseFloat(r.commission_amount ?? 0), 0)
+  return { payments: rows, total_cobrado: Math.round(total * 100) / 100 }
+}
+
 // ── Admin ──────────────────────────────────────────────────────────────────────
 export async function adminGetAllClients({ status, sellerId, page = 1, limit = 30 } = {}) {
   const conds  = []

@@ -5,6 +5,8 @@ import {
   updateProspectNextContact,
   incrementProspectAttempts,
   convertProspectToClient,
+  getConversionStats,
+  getProjection,
 } from '../db/queries/sellerProspects.js'
 import { getCommissionByOperator } from '../db/queries/commissions.js'
 import { respond } from '../utils/respond.js'
@@ -101,5 +103,19 @@ export async function handleConvertProspect(req, res, next) {
       installationDate, notes: notes || null,
     })
     respond(res, 201, result)
+  } catch (err) { next(err) }
+}
+
+export async function handleGetConversionStats(req, res, next) {
+  try {
+    const stats = await getConversionStats(req.seller.sellerId)
+    respond(res, 200, stats)
+  } catch (err) { next(err) }
+}
+
+export async function handleGetProjection(req, res, next) {
+  try {
+    const projection = await getProjection(req.seller.sellerId)
+    respond(res, 200, projection)
   } catch (err) { next(err) }
 }

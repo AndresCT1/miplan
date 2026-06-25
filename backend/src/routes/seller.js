@@ -6,12 +6,13 @@ import {
 } from '../controllers/sellerController.js'
 import {
   handleGetClients, handleCreateClient,
-  handleGetClientStats, handleUpdateClientNotes,
+  handleGetClientStats, handleUpdateClientNotes, handleGetPayments,
 } from '../controllers/sellerClientController.js'
 import {
   handleGetProspects, handleCreateProspect,
   handleUpdateProspectStatus, handleUpdateProspectNextContact,
   handleIncrementAttempt, handleConvertProspect,
+  handleGetConversionStats, handleGetProjection,
 } from '../controllers/sellerProspectController.js'
 import {
   handleGetProfile, handleUpdateProfile, handleTestNotification,
@@ -47,11 +48,14 @@ router.post('/profile/test-notification', requireSellerAuth, handleTestNotificat
 router.get ('/clients',             requireSellerAuth,  handleGetClients)
 router.post('/clients',             requireSellerAuth,  handleCreateClient)
 router.get ('/clients/stats',       requireSellerAuth,  handleGetClientStats)
+router.get ('/clients/payments',    requireSellerAuth,  handleGetPayments)
 router.put ('/clients/:id/notes',   requireSellerAuth,  handleUpdateClientNotes)
 
 // Prospects
 router.get ('/prospects',                    requireSellerAuth,  handleGetProspects)
 router.post('/prospects',                    requireSellerAuth,  handleCreateProspect)
+router.get ('/prospects/conversion-stats',   requireSellerAuth,  handleGetConversionStats)
+router.get ('/prospects/projection',         requireSellerAuth,  handleGetProjection)
 router.put ('/prospects/:id/status',         requireSellerAuth,  handleUpdateProspectStatus)
 router.put ('/prospects/:id/next-contact',   requireSellerAuth,  handleUpdateProspectNextContact)
 router.put ('/prospects/:id/attempt',        requireSellerAuth,  handleIncrementAttempt)

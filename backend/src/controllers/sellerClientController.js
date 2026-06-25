@@ -3,6 +3,7 @@ import {
   getClientsBySeller,
   getClientStats,
   updateClientNotes,
+  getPaidClients,
 } from '../db/queries/sellerClients.js'
 import { getCommissionByOperator } from '../db/queries/commissions.js'
 import { pool } from '../db/connection.js'
@@ -66,5 +67,12 @@ export async function handleUpdateClientNotes(req, res, next) {
     const client = await updateClientNotes(id, req.seller.sellerId, notes ?? null)
     if (!client) return respond(res, 404, null, 'Cliente no encontrado')
     respond(res, 200, client)
+  } catch (err) { next(err) }
+}
+
+export async function handleGetPayments(req, res, next) {
+  try {
+    const result = await getPaidClients(req.seller.sellerId)
+    respond(res, 200, result)
   } catch (err) { next(err) }
 }

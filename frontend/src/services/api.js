@@ -73,9 +73,13 @@ export const sellerService = {
   createClient:   (data)    => api.post('/seller/clients', data),
   getClientStats: ()        => api.get('/seller/clients/stats'),
   updateClientNotes: (id, notes) => api.put(`/seller/clients/${id}/notes`, { notes }),
+  // Clients — payments
+  getPayments:    ()        => api.get('/seller/clients/payments'),
   // Prospects
-  getProspects:   (params)  => api.get('/seller/prospects', { params }),
-  createProspect: (data)    => api.post('/seller/prospects', data),
+  getProspects:        (params)  => api.get('/seller/prospects', { params }),
+  createProspect:      (data)    => api.post('/seller/prospects', data),
+  getConversionStats:  ()        => api.get('/seller/prospects/conversion-stats'),
+  getProjection:       ()        => api.get('/seller/prospects/projection'),
   updateProspectStatus:     (id, status) => api.put(`/seller/prospects/${id}/status`, { status }),
   updateProspectNextContact:(id, date)   => api.put(`/seller/prospects/${id}/next-contact`, { date }),
   incrementAttempt:         (id)         => api.put(`/seller/prospects/${id}/attempt`),

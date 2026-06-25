@@ -9,21 +9,29 @@ function StatCard({ icon, label, value, sub, color = 'blue' }) {
   }[color]
 
   return (
-    <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{label}</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{value}</p>
-          {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
+    <div className="bg-white rounded-xl p-3 md:p-5 shadow-sm border border-gray-100">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-xs text-gray-500 font-medium uppercase tracking-wide leading-tight">
+            {label}
+          </p>
+          <p className="text-2xl md:text-3xl font-bold text-gray-900 mt-1 leading-none">
+            {value}
+          </p>
+          {sub && (
+            <p className="text-xs text-gray-400 mt-1 leading-tight">{sub}</p>
+          )}
         </div>
-        <span className={`text-2xl p-2 rounded-lg ${ring}`}>{icon}</span>
+        <span className={`text-lg md:text-2xl p-1.5 md:p-2 rounded-lg shrink-0 ${ring}`}>
+          {icon}
+        </span>
       </div>
     </div>
   )
 }
 
 function SkeletonCard() {
-  return <div className="bg-gray-100 rounded-xl h-28 animate-pulse" />
+  return <div className="bg-gray-100 rounded-xl h-24 md:h-28 animate-pulse" />
 }
 
 export default function SellerDashboard() {
@@ -61,7 +69,7 @@ export default function SellerDashboard() {
 
   if (loading) return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
         <SkeletonCard /><SkeletonCard /><SkeletonCard />
       </div>
       <div className="bg-gray-100 rounded-xl h-64 animate-pulse" />
@@ -81,10 +89,11 @@ export default function SellerDashboard() {
   const { stats, urgentFollowups } = data
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <h1 className="text-xl font-bold text-gray-900">Mi Dashboard</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* Métricas — 2 cols mobile, 3 cols sm+ */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
         <StatCard
           icon="💼"
           label="Ventas este mes"
@@ -93,67 +102,75 @@ export default function SellerDashboard() {
         />
         <StatCard
           icon="💰"
-          label="Comisión este mes"
+          label="Comisión mes"
           value={`S/ ${parseFloat(stats.commission_this_month).toFixed(2)}`}
           color="green"
         />
         <StatCard
           icon="⏰"
-          label="Seguimientos urgentes"
+          label="Urgentes"
           value={stats.urgent_followups}
-          sub="Vencidos o para hoy"
+          sub="Para hoy o vencidos"
           color="orange"
         />
       </div>
 
+      {/* Seguimientos urgentes — cards verticales */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-100">
+        <div className="px-4 md:px-5 py-4 border-b border-gray-100">
           <h2 className="font-semibold text-gray-800">Seguimientos urgentes</h2>
           <p className="text-xs text-gray-400 mt-0.5">Vencidos o programados para hoy</p>
         </div>
 
         {urgentFollowups.length === 0 ? (
           <div className="px-5 py-10 text-center text-gray-400 text-sm">
-            Sin seguimientos urgentes por ahora
+            Sin seguimientos urgentes 🎉
           </div>
         ) : (
           <div className="divide-y divide-gray-50">
             {urgentFollowups.map((sale) => (
-              <div key={sale.id}
-                   className="px-5 py-4 flex items-center justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="font-medium text-gray-900 truncate">{sale.client_name}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    {sale.operator_name} · {sale.plan_name}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    Seguimiento: {sale.follow_up_date
-                      ? new Date(sale.follow_up_date + 'T00:00:00').toLocaleDateString('es-PE')
-                      : '—'}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <a href={`tel:${sale.client_phone}`}
-                     className="text-xs text-blue-600 hover:underline">
-                    {sale.client_phone}
-                  </a>
-                  {sale.status === 'pending' && (
+              <div key={sale.id} className="px-4 md:px-5 py-4 space-y-2">
+                {/* Fila 1: nombre + acción */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-gray-900 truncate">
+                      {sale.client_name}
+                    </p>
+                    <a
+                      href={`tel:${sale.client_phone}`}
+                      className="text-sm text-blue-600 hover:underline font-medium"
+                    >
+                      📞 {sale.client_phone}
+                    </a>
+                  </div>
+                  {sale.status === 'pending' ? (
                     <button
                       onClick={() => handleMarkContacted(sale.id)}
                       disabled={marking === sale.id}
                       className="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white
-                                 text-xs font-medium rounded-lg transition-colors
-                                 disabled:opacity-50"
+                                 text-xs font-semibold rounded-lg transition-colors
+                                 disabled:opacity-50 shrink-0"
                     >
-                      {marking === sale.id ? 'Guardando...' : 'Marcar contactado'}
+                      {marking === sale.id ? '...' : '✓ Contactado'}
                     </button>
-                  )}
-                  {sale.status !== 'pending' && (
-                    <span className="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded-lg capitalize">
+                  ) : (
+                    <span className="px-2 py-1 bg-gray-100 text-gray-500 text-xs
+                                     rounded-lg capitalize shrink-0">
                       {sale.status}
                     </span>
                   )}
                 </div>
+                {/* Fila 2: operador + plan */}
+                <p className="text-xs text-gray-500">
+                  {sale.operator_name} · {sale.plan_name}
+                </p>
+                {/* Fila 3: fecha */}
+                {sale.follow_up_date && (
+                  <p className="text-xs text-orange-500 font-medium">
+                    Seguimiento:{' '}
+                    {new Date(sale.follow_up_date + 'T00:00:00').toLocaleDateString('es-PE')}
+                  </p>
+                )}
               </div>
             ))}
           </div>

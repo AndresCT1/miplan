@@ -26,17 +26,17 @@ export default function SellerLogin() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <span className="text-3xl font-extrabold text-white tracking-tight">
+        <div className="text-center mb-6">
+          <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
             MiPlan <span className="text-green-400">Equipo</span>
           </span>
           <p className="text-gray-500 text-sm mt-1">Panel de Ventas</p>
         </div>
 
         <form onSubmit={handleSubmit}
-              className="bg-gray-800 rounded-2xl p-8 shadow-xl space-y-5">
+              className="bg-gray-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
               Email

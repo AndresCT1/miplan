@@ -403,6 +403,8 @@ export default function Clients() {
           </div>
         </>
       )}
+      </>
+      )}
 
       {showModal && (
         <NewClientModal

@@ -2,6 +2,13 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { sellerService } from '../../services/api'
 
+function extractRegularPrice(features = []) {
+  const feat = features.find(f => f.toLowerCase().startsWith('precio regular:'))
+  if (!feat) return null
+  const m = feat.match(/S\/([\d.]+)/)
+  return m ? parseFloat(m[1]) : null
+}
+
 function CommissionBadge({ plan, commissionPct }) {
   if (parseFloat(commissionPct) === 0) {
     return (
@@ -10,7 +17,9 @@ function CommissionBadge({ plan, commissionPct }) {
       </span>
     )
   }
-  const amount = (parseFloat(plan.price) * (parseFloat(commissionPct) / 100)).toFixed(2)
+  const regularPrice = extractRegularPrice(plan.features ?? [])
+  const basePrice    = regularPrice ?? parseFloat(plan.price)
+  const amount       = (basePrice * (parseFloat(commissionPct) / 100)).toFixed(2)
   return (
     <span className="text-sm font-semibold text-green-700 bg-green-50 px-2 py-1 rounded-md">
       Ganas S/ {amount} por esta venta

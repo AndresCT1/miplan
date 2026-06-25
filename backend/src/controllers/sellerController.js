@@ -24,6 +24,13 @@ const COOKIE_OPTS = {
 
 const VALID_STATUSES = ['pending', 'contacted', 'closed', 'lost']
 
+function extractRegularPrice(features = []) {
+  const feat = features.find(f => f.toLowerCase().startsWith('precio regular:'))
+  if (!feat) return null
+  const m = feat.match(/S\/([\d.]+)/)
+  return m ? parseFloat(m[1]) : null
+}
+
 // ── Auth ──────────────────────────────────────────────────────────────────────
 export async function sellerLogin(req, res, next) {
   try {
@@ -122,11 +129,13 @@ export async function sellerCreateSale(req, res, next) {
 
     const commissionPct  = await getCommissionByOperator(opId)
     const { rows: [plan] } = await pool.query(
-      'SELECT price FROM plans WHERE id = $1 AND active = true', [plId]
+      'SELECT price, features FROM plans WHERE id = $1 AND active = true', [plId]
     )
     if (!plan) return respond(res, 404, null, 'Plan no encontrado')
 
-    const commissionAmount = Math.round(plan.price * (commissionPct / 100) * 100) / 100
+    const regularPrice   = extractRegularPrice(plan.features)
+    const basePrice      = regularPrice ?? parseFloat(plan.price)
+    const commissionAmount = Math.round(basePrice * (commissionPct / 100) * 100) / 100
 
     const sale = await insertSale({
       sellerId:         req.seller.sellerId,

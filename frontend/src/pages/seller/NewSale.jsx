@@ -2,6 +2,13 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { sellerService } from '../../services/api'
 
+function extractRegularPrice(features = []) {
+  const feat = features.find(f => f.toLowerCase().startsWith('precio regular:'))
+  if (!feat) return null
+  const m = feat.match(/S\/([\d.]+)/)
+  return m ? parseFloat(m[1]) : null
+}
+
 export default function NewSale() {
   const navigate       = useNavigate()
   const [params]       = useSearchParams()
@@ -34,11 +41,13 @@ export default function NewSale() {
 
   useEffect(() => { fetchCatalog() }, [fetchCatalog])
 
-  const selectedOp   = catalog.find(op => String(op.id) === String(form.operatorId))
-  const selectedPlan = selectedOp?.plans?.find(p => String(p.id) === String(form.planId))
+  const selectedOp    = catalog.find(op => String(op.id) === String(form.operatorId))
+  const selectedPlan  = selectedOp?.plans?.find(p => String(p.id) === String(form.planId))
   const commissionPct = parseFloat(selectedOp?.commission_pct ?? 0)
+  const regularPrice  = extractRegularPrice(selectedPlan?.features ?? [])
+  const basePrice     = regularPrice ?? parseFloat(selectedPlan?.price ?? 0)
   const commissionAmt = selectedPlan
-    ? (parseFloat(selectedPlan.price) * commissionPct / 100).toFixed(2)
+    ? (basePrice * commissionPct / 100).toFixed(2)
     : null
 
   const set = (field) => (e) => {

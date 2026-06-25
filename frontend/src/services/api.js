@@ -36,14 +36,20 @@ export const chatService = {
 }
 
 export const adminService = {
-  login:              (creds)  => api.post('/admin/login', creds),
-  logout:             ()       => api.post('/admin/logout'),
-  getMe:              ()       => api.get('/admin/me'),
-  getLeads:           (params) => api.get('/admin/leads', { params }),
-  updateStatus:       (id, s)  => api.put(`/admin/leads/${id}/status`, { status: s }),
-  getStats:           ()       => api.get('/admin/stats'),
-  getCommissions:     ()       => api.get('/admin/commissions'),
+  login:              (creds)   => api.post('/admin/login', creds),
+  logout:             ()        => api.post('/admin/logout'),
+  getMe:              ()        => api.get('/admin/me'),
+  getLeads:           (params)  => api.get('/admin/leads', { params }),
+  updateStatus:       (id, s)   => api.put(`/admin/leads/${id}/status`, { status: s }),
+  getStats:           ()        => api.get('/admin/stats'),
+  getCommissions:     ()        => api.get('/admin/commissions'),
   updateCommission:   (id, pct) => api.put(`/admin/commissions/${id}`, { commission_pct: pct }),
+  // Seller management
+  getSellers:         ()           => api.get('/admin/sellers'),
+  createSeller:       (data)       => api.post('/admin/sellers', data),
+  updateSeller:       (id, data)   => api.put(`/admin/sellers/${id}`, data),
+  resetSellerPassword:(id, pwd)    => api.put(`/admin/sellers/${id}/reset-password`, { newPassword: pwd }),
+  deactivateSeller:   (id)         => api.delete(`/admin/sellers/${id}`),
 }
 
 export const sellerService = {

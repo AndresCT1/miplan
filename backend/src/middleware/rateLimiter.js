@@ -41,3 +41,11 @@ export const sellerLoginLimiter = rateLimit({
   legacyHeaders: false,
   message: { success: false, data: null, error: 'Demasiados intentos. Espera 15 minutos.' },
 })
+
+export const resetPasswordLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, data: null, error: 'Demasiados resets de contraseña. Espera 1 minuto.' },
+})

@@ -6,6 +6,14 @@ import {
   updateLeadStatus as dbUpdateStatus,
   getStats,
 } from '../db/queries/admin.js'
+import {
+  adminGetAllSellers,
+  adminGetSellerByEmail,
+  adminCreateSeller,
+  adminUpdateSeller,
+  adminResetSellerPassword,
+  adminDeactivateSeller,
+} from '../db/queries/sellers.js'
 import { respond } from '../utils/respond.js'
 
 const VALID_STATUSES = ['pending', 'contacted', 'interested', 'closed', 'lost']
@@ -97,6 +105,95 @@ export async function adminGetStats(req, res, next) {
   try {
     const stats = await getStats()
     respond(res, 200, stats)
+  } catch (err) {
+    next(err)
+  }
+}
+
+// ── Seller management ─────────────────────────────────────────────────────────
+export async function adminListSellers(req, res, next) {
+  try {
+    const sellers = await adminGetAllSellers()
+    respond(res, 200, sellers)
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function adminCreateSellerHandler(req, res, next) {
+  try {
+    const { name, email, password } = req.body ?? {}
+    if (!name?.trim())           return respond(res, 422, null, 'El nombre es requerido')
+    if (!email?.trim())          return respond(res, 422, null, 'El email es requerido')
+    if (!password || password.length < 6)
+      return respond(res, 422, null, 'La contraseña debe tener mínimo 6 caracteres')
+
+    const existing = await adminGetSellerByEmail(email.trim().toLowerCase())
+    if (existing) return respond(res, 409, null, 'Ya existe un vendedor con ese email')
+
+    const passwordHash = await bcrypt.hash(password, 10)
+    const seller = await adminCreateSeller({
+      name:         name.trim(),
+      email:        email.trim().toLowerCase(),
+      passwordHash,
+    })
+    respond(res, 201, seller)
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function adminUpdateSellerHandler(req, res, next) {
+  try {
+    const id = parseInt(req.params.id, 10)
+    if (!Number.isInteger(id) || id < 1) return respond(res, 400, null, 'ID inválido')
+
+    const { name, email, active } = req.body ?? {}
+
+    if (email !== undefined) {
+      const conflict = await adminGetSellerByEmail(email.trim().toLowerCase())
+      if (conflict && conflict.id !== id)
+        return respond(res, 409, null, 'Ese email ya está en uso por otro vendedor')
+    }
+
+    const seller = await adminUpdateSeller(id, {
+      name:   name   !== undefined ? name.trim()                    : undefined,
+      email:  email  !== undefined ? email.trim().toLowerCase()     : undefined,
+      active: active !== undefined ? Boolean(active)                : undefined,
+    })
+    if (!seller) return respond(res, 404, null, 'Vendedor no encontrado')
+    respond(res, 200, seller)
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function adminResetSellerPasswordHandler(req, res, next) {
+  try {
+    const id = parseInt(req.params.id, 10)
+    if (!Number.isInteger(id) || id < 1) return respond(res, 400, null, 'ID inválido')
+
+    const { newPassword } = req.body ?? {}
+    if (!newPassword || newPassword.length < 6)
+      return respond(res, 422, null, 'La contraseña debe tener mínimo 6 caracteres')
+
+    const passwordHash = await bcrypt.hash(newPassword, 10)
+    const seller = await adminResetSellerPassword(id, passwordHash)
+    if (!seller) return respond(res, 404, null, 'Vendedor no encontrado')
+    respond(res, 200, { message: 'Contraseña actualizada correctamente' })
+  } catch (err) {
+    next(err)
+  }
+}
+
+export async function adminDeactivateSellerHandler(req, res, next) {
+  try {
+    const id = parseInt(req.params.id, 10)
+    if (!Number.isInteger(id) || id < 1) return respond(res, 400, null, 'ID inválido')
+
+    const seller = await adminDeactivateSeller(id)
+    if (!seller) return respond(res, 404, null, 'Vendedor no encontrado')
+    respond(res, 200, seller)
   } catch (err) {
     next(err)
   }

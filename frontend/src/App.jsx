@@ -27,6 +27,7 @@ const AdminLogin    = lazy(() => import('./pages/admin/Login'))
 const Dashboard     = lazy(() => import('./pages/admin/Dashboard'))
 const Leads         = lazy(() => import('./pages/admin/Leads'))
 const Commissions   = lazy(() => import('./pages/admin/Commissions'))
+const AdminSellers  = lazy(() => import('./pages/admin/Sellers'))
 
 // Seller pages
 const SellerLogin   = lazy(() => import('./pages/seller/Login'))
@@ -104,6 +105,7 @@ export default function App() {
                       <Route index              element={<Dashboard />} />
                       <Route path="leads"       element={<Leads />} />
                       <Route path="comisiones"  element={<Commissions />} />
+                      <Route path="vendedores"  element={<AdminSellers />} />
                     </Route>
 
                     {/* Seller — public */}

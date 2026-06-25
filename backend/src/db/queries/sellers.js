@@ -144,3 +144,70 @@ export async function markContacted(id, sellerId) {
   )
   return rows[0] ?? null
 }
+
+// ── Admin seller management ────────────────────────────────────────────────────
+
+const SELLER_SAFE_FIELDS = 'id, name, email, active, created_at'
+
+export async function adminGetAllSellers() {
+  const { rows } = await pool.query(
+    `SELECT ${SELLER_SAFE_FIELDS} FROM sellers ORDER BY created_at DESC`
+  )
+  return rows
+}
+
+export async function adminGetSellerByEmail(email) {
+  const { rows } = await pool.query(
+    'SELECT id FROM sellers WHERE email = $1', [email]
+  )
+  return rows[0] ?? null
+}
+
+export async function adminCreateSeller({ name, email, passwordHash }) {
+  const { rows } = await pool.query(
+    `INSERT INTO sellers (name, email, password_hash, active)
+     VALUES ($1, $2, $3, true)
+     RETURNING ${SELLER_SAFE_FIELDS}`,
+    [name, email, passwordHash]
+  )
+  return rows[0]
+}
+
+export async function adminUpdateSeller(id, { name, email, active }) {
+  const sets   = []
+  const params = []
+  let   idx    = 1
+
+  if (name   !== undefined) { sets.push(`name   = $${idx}`); params.push(name);   idx++ }
+  if (email  !== undefined) { sets.push(`email  = $${idx}`); params.push(email);  idx++ }
+  if (active !== undefined) { sets.push(`active = $${idx}`); params.push(active); idx++ }
+
+  if (!sets.length) return null
+
+  params.push(id)
+  const { rows } = await pool.query(
+    `UPDATE sellers SET ${sets.join(', ')}
+     WHERE id = $${idx}
+     RETURNING ${SELLER_SAFE_FIELDS}`,
+    params
+  )
+  return rows[0] ?? null
+}
+
+export async function adminResetSellerPassword(id, passwordHash) {
+  const { rows } = await pool.query(
+    `UPDATE sellers SET password_hash = $1 WHERE id = $2
+     RETURNING ${SELLER_SAFE_FIELDS}`,
+    [passwordHash, id]
+  )
+  return rows[0] ?? null
+}
+
+export async function adminDeactivateSeller(id) {
+  const { rows } = await pool.query(
+    `UPDATE sellers SET active = false WHERE id = $1
+     RETURNING ${SELLER_SAFE_FIELDS}`,
+    [id]
+  )
+  return rows[0] ?? null
+}

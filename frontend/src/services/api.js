@@ -44,12 +44,14 @@ export const adminService = {
   getStats:           ()        => api.get('/admin/stats'),
   getCommissions:     ()        => api.get('/admin/commissions'),
   updateCommission:   (id, pct) => api.put(`/admin/commissions/${id}`, { commission_pct: pct }),
-  // Seller management
   getSellers:         ()           => api.get('/admin/sellers'),
   createSeller:       (data)       => api.post('/admin/sellers', data),
   updateSeller:       (id, data)   => api.put(`/admin/sellers/${id}`, data),
   resetSellerPassword:(id, pwd)    => api.put(`/admin/sellers/${id}/reset-password`, { newPassword: pwd }),
   deactivateSeller:   (id)         => api.delete(`/admin/sellers/${id}`),
+  // Client commissions
+  getAllClients:       (params)     => api.get('/admin/clients', { params }),
+  markCommissionPaid: (id)         => api.put(`/admin/clients/${id}/commission-status`),
 }
 
 export const sellerService = {
@@ -62,6 +64,22 @@ export const sellerService = {
   createSale:     (data)    => api.post('/seller/sales', data),
   updateSale:     (id, data)=> api.put(`/seller/sales/${id}`, data),
   markContacted:  (id)      => api.post(`/seller/sales/${id}/contacted`),
+  // Profile
+  getProfile:     ()        => api.get('/seller/profile'),
+  updateProfile:  (data)    => api.put('/seller/profile', data),
+  testNotification: ()      => api.post('/seller/profile/test-notification'),
+  // Clients
+  getClients:     (params)  => api.get('/seller/clients', { params }),
+  createClient:   (data)    => api.post('/seller/clients', data),
+  getClientStats: ()        => api.get('/seller/clients/stats'),
+  updateClientNotes: (id, notes) => api.put(`/seller/clients/${id}/notes`, { notes }),
+  // Prospects
+  getProspects:   (params)  => api.get('/seller/prospects', { params }),
+  createProspect: (data)    => api.post('/seller/prospects', data),
+  updateProspectStatus:     (id, status) => api.put(`/seller/prospects/${id}/status`, { status }),
+  updateProspectNextContact:(id, date)   => api.put(`/seller/prospects/${id}/next-contact`, { date }),
+  incrementAttempt:         (id)         => api.put(`/seller/prospects/${id}/attempt`),
+  convertProspect:          (id, data)   => api.post(`/seller/prospects/${id}/convert`, data),
 }
 
 export default api

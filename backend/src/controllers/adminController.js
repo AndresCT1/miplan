@@ -14,6 +14,12 @@ import {
   adminResetSellerPassword,
   adminDeactivateSeller,
 } from '../db/queries/sellers.js'
+import {
+  adminGetAllClients,
+  adminMarkCommissionPaid,
+} from '../db/queries/sellerClients.js'
+import { getSellerForNotification } from '../db/queries/sellerProfile.js'
+import { sellerNotificationService } from '../services/sellerNotificationService.js'
 import { respond } from '../utils/respond.js'
 
 const VALID_STATUSES = ['pending', 'contacted', 'interested', 'closed', 'lost']
@@ -197,4 +203,31 @@ export async function adminDeactivateSellerHandler(req, res, next) {
   } catch (err) {
     next(err)
   }
+}
+
+// ── Client commission management ──────────────────────────────────────────────
+export async function adminListAllClients(req, res, next) {
+  try {
+    const { status, sellerId, page = 1, limit = 30 } = req.query
+    const result = await adminGetAllClients({ status, sellerId, page: parseInt(page), limit: parseInt(limit) })
+    respond(res, 200, result)
+  } catch (err) { next(err) }
+}
+
+export async function adminMarkClientCommissionPaid(req, res, next) {
+  try {
+    const id = parseInt(req.params.id)
+    if (!Number.isInteger(id) || id < 1) return respond(res, 400, null, 'ID inválido')
+
+    const client = await adminMarkCommissionPaid(id)
+    if (!client) return respond(res, 404, null, 'Cliente no encontrado o ya marcado como pagado')
+
+    // Notificar al vendedor si tiene CallMeBot configurado
+    const seller = await getSellerForNotification(client.seller_id)
+    if (seller?.callmebot_apikey && seller?.phone) {
+      sellerNotificationService.notifyCommissionPaid(seller, client).catch(() => {})
+    }
+
+    respond(res, 200, client)
+  } catch (err) { next(err) }
 }

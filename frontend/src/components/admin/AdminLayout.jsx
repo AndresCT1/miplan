@@ -3,10 +3,11 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAdmin } from '../../context/AdminContext'
 
 const NAV = [
-  { to: '/admin',              label: 'Dashboard',  icon: '📊', end: true  },
-  { to: '/admin/leads',        label: 'Leads',      icon: '👥', end: false },
-  { to: '/admin/comisiones',   label: 'Comisiones', icon: '💰', end: false },
-  { to: '/admin/vendedores',   label: 'Vendedores', icon: '🧑‍💼', end: false },
+  { to: '/admin',                      label: 'Dashboard',  icon: '📊', end: true  },
+  { to: '/admin/leads',                label: 'Leads',      icon: '👥', end: false },
+  { to: '/admin/comisiones',           label: 'Comisiones', icon: '💰', end: false },
+  { to: '/admin/vendedores',           label: 'Vendedores', icon: '🧑‍💼', end: false },
+  { to: '/admin/comisiones-clientes',  label: 'Pagos',      icon: '💸', end: false },
 ]
 
 export default function AdminLayout() {

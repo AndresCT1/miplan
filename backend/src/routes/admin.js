@@ -11,6 +11,8 @@ import {
   adminUpdateSellerHandler,
   adminResetSellerPasswordHandler,
   adminDeactivateSellerHandler,
+  adminListAllClients,
+  adminMarkClientCommissionPaid,
 } from '../controllers/adminController.js'
 import { requireAuth }                           from '../middleware/auth.js'
 import { loginLimiter, resetPasswordLimiter }    from '../middleware/rateLimiter.js'
@@ -35,5 +37,9 @@ router.post('/sellers',                          requireAuth,                adm
 router.put ('/sellers/:id',                      requireAuth,                adminUpdateSellerHandler)
 router.put ('/sellers/:id/reset-password',       requireAuth, resetPasswordLimiter, adminResetSellerPasswordHandler)
 router.delete('/sellers/:id',                    requireAuth,                adminDeactivateSellerHandler)
+
+// Client commission management
+router.get ('/clients',                          requireAuth, adminListAllClients)
+router.put ('/clients/:id/commission-status',    requireAuth, adminMarkClientCommissionPaid)
 
 export default router

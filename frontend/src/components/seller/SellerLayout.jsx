@@ -2,17 +2,20 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useSeller } from '../../context/SellerContext'
 
 const BOTTOM_NAV = [
-  { to: '/equipo',             label: 'Inicio',   icon: '🏠', end: true  },
-  { to: '/equipo/ventas',      label: 'Ventas',   icon: '💼', end: false },
-  { to: '/equipo/catalogo',    label: 'Catálogo', icon: '📋', end: false },
-  { to: '/equipo/nueva-venta', label: 'Nueva',    icon: '➕', end: false },
+  { to: '/equipo',               label: 'Inicio',     icon: '🏠', end: true  },
+  { to: '/equipo/clientes',      label: 'Clientes',   icon: '👥', end: false },
+  { to: '/equipo/prospectos',    label: 'Prospectos', icon: '🎯', end: false },
+  { to: '/equipo/catalogo',      label: 'Catálogo',   icon: '📋', end: false },
+  { to: '/equipo/perfil',        label: 'Perfil',     icon: '👤', end: false },
 ]
 
 const SIDEBAR_NAV = [
-  { to: '/equipo',             label: 'Dashboard',  icon: '📊', end: true  },
-  { to: '/equipo/ventas',      label: 'Mis Ventas', icon: '💼', end: false },
-  { to: '/equipo/catalogo',    label: 'Catálogo',   icon: '📡', end: false },
-  { to: '/equipo/nueva-venta', label: 'Nueva Venta',icon: '➕', end: false },
+  { to: '/equipo',               label: 'Dashboard',  icon: '📊', end: true  },
+  { to: '/equipo/clientes',      label: 'Clientes',   icon: '👥', end: false },
+  { to: '/equipo/prospectos',    label: 'Prospectos', icon: '🎯', end: false },
+  { to: '/equipo/catalogo',      label: 'Catálogo',   icon: '📡', end: false },
+  { to: '/equipo/nueva-venta',   label: 'Nueva Venta',icon: '➕', end: false },
+  { to: '/equipo/perfil',        label: 'Mi Perfil',  icon: '👤', end: false },
 ]
 
 export default function SellerLayout() {

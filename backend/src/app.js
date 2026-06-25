@@ -4,6 +4,8 @@ import helmet from 'helmet'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 
+import { getAllTodayFollowUpsWithSellers } from './db/queries/sellerProspects.js'
+import { sellerNotificationService }       from './services/sellerNotificationService.js'
 import operatorsRouter    from './routes/operators.js'
 import plansRouter        from './routes/plans.js'
 import leadsRouter        from './routes/leads.js'
@@ -93,6 +95,42 @@ const server = app.listen(PORT, () => {
   console.log(`🚀 MiPlan.pe API corriendo en puerto ${PORT}`)
   console.log(`   NODE_ENV=${process.env.NODE_ENV ?? 'development'}`)
 })
+
+// ── Cron: recordatorios WhatsApp 8am ─────────────────────────────────────────
+async function runFollowUpNotifications() {
+  try {
+    const followUps = await getAllTodayFollowUpsWithSellers()
+    console.log(`[Cron] Enviando ${followUps.length} recordatorios de seguimiento`)
+    await Promise.allSettled(
+      followUps.map(row =>
+        sellerNotificationService.notifyFollowUp(
+          { phone: row.seller_phone, callmebot_apikey: row.callmebot_apikey, name: row.seller_name },
+          { prospect_name: row.prospect_name, prospect_phone: row.prospect_phone,
+            next_contact_date: row.next_contact_date, operator_name: row.operator_name }
+        )
+      )
+    )
+  } catch (err) {
+    console.error('[Cron] Error en notificaciones:', err.message)
+  }
+}
+
+function scheduleFollowUpCron() {
+  const now    = new Date()
+  const next8  = new Date(now)
+  next8.setHours(8, 0, 0, 0)
+  if (next8 <= now) next8.setDate(next8.getDate() + 1)
+
+  const msUntil8 = next8 - now
+  console.log(`[Cron] Recordatorios programados en ${Math.round(msUntil8 / 60000)} min`)
+
+  setTimeout(() => {
+    runFollowUpNotifications()
+    setInterval(runFollowUpNotifications, 24 * 60 * 60 * 1000)
+  }, msUntil8)
+}
+
+scheduleFollowUpCron()
 
 // Graceful shutdown — Railway envía SIGTERM antes de reemplazar el contenedor
 process.on('SIGTERM', () => {

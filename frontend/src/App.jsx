@@ -28,13 +28,17 @@ const Dashboard     = lazy(() => import('./pages/admin/Dashboard'))
 const Leads         = lazy(() => import('./pages/admin/Leads'))
 const Commissions   = lazy(() => import('./pages/admin/Commissions'))
 const AdminSellers  = lazy(() => import('./pages/admin/Sellers'))
+const AllClients    = lazy(() => import('./pages/admin/AllClients'))
 
 // Seller pages
-const SellerLogin   = lazy(() => import('./pages/seller/Login'))
+const SellerLogin     = lazy(() => import('./pages/seller/Login'))
 const SellerDashboard = lazy(() => import('./pages/seller/Dashboard'))
-const SellerCatalog = lazy(() => import('./pages/seller/Catalog'))
-const NewSale       = lazy(() => import('./pages/seller/NewSale'))
-const MySales       = lazy(() => import('./pages/seller/MySales'))
+const SellerCatalog   = lazy(() => import('./pages/seller/Catalog'))
+const NewSale         = lazy(() => import('./pages/seller/NewSale'))
+const MySales         = lazy(() => import('./pages/seller/MySales'))
+const SellerClients   = lazy(() => import('./pages/seller/Clients'))
+const SellerProspects = lazy(() => import('./pages/seller/Prospects'))
+const SellerProfile   = lazy(() => import('./pages/seller/Profile'))
 
 function PageLoader() {
   return (
@@ -102,10 +106,11 @@ export default function App() {
                         <AdminLayout />
                       </ProtectedRoute>
                     }>
-                      <Route index              element={<Dashboard />} />
-                      <Route path="leads"       element={<Leads />} />
-                      <Route path="comisiones"  element={<Commissions />} />
-                      <Route path="vendedores"  element={<AdminSellers />} />
+                      <Route index                       element={<Dashboard />} />
+                      <Route path="leads"                element={<Leads />} />
+                      <Route path="comisiones"           element={<Commissions />} />
+                      <Route path="vendedores"           element={<AdminSellers />} />
+                      <Route path="comisiones-clientes"  element={<AllClients />} />
                     </Route>
 
                     {/* Seller — public */}
@@ -121,6 +126,9 @@ export default function App() {
                       <Route path="ventas"      element={<MySales />} />
                       <Route path="catalogo"    element={<SellerCatalog />} />
                       <Route path="nueva-venta" element={<NewSale />} />
+                      <Route path="clientes"    element={<SellerClients />} />
+                      <Route path="prospectos"  element={<SellerProspects />} />
+                      <Route path="perfil"      element={<SellerProfile />} />
                     </Route>
 
                     <Route path="*" element={<Navigate to="/" replace />} />

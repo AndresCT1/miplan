@@ -10,6 +10,8 @@ import {
   markContacted,
 } from '../db/queries/sellers.js'
 import { getSellerCatalog, getCommissionByOperator } from '../db/queries/commissions.js'
+import { getClientStats, getRecentClients }        from '../db/queries/sellerClients.js'
+import { getTodayFollowUps, getActiveProspectCount } from '../db/queries/sellerProspects.js'
 import { pool } from '../db/connection.js'
 import { respond } from '../utils/respond.js'
 
@@ -76,8 +78,23 @@ export async function sellerGetMe(req, res, next) {
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 export async function sellerDashboard(req, res, next) {
   try {
-    const data = await getSellerDashboard(req.seller.sellerId)
-    respond(res, 200, data)
+    const sellerId = req.seller.sellerId
+    const [clientStats, todayFollowUps, recentClients, activeProspects] = await Promise.all([
+      getClientStats(sellerId),
+      getTodayFollowUps(sellerId),
+      getRecentClients(sellerId, 3),
+      getActiveProspectCount(sellerId),
+    ])
+    respond(res, 200, {
+      stats: {
+        total_clients:          parseInt(clientStats.total_clients, 10),
+        pending_commission:     parseFloat(clientStats.pending_commission),
+        paid_this_month:        parseFloat(clientStats.paid_this_month),
+        active_prospects:       activeProspects,
+      },
+      todayFollowUps,
+      recentClients,
+    })
   } catch (err) {
     next(err)
   }

@@ -224,26 +224,22 @@ export default function SellerCatalog() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-xl font-bold text-gray-900">Catálogo</h1>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setFiltersOpen(v => !v)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border
-                       border-gray-200 text-sm shadow-sm md:hidden"
-            style={activeOp ? { borderColor: activeOp.brand_color, color: activeOp.brand_color } : { color: '#6B7280' }}
-          >
-            <span>🔽</span>
-            <span>{activeOp?.name ?? 'Filtrar'}</span>
-          </button>
-          <button
-            onClick={() => navigate('/equipo/nueva-venta')}
-            className="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium
-                       hover:bg-green-700 transition-colors"
-          >
-            ➕ Nueva venta
-          </button>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold text-gray-900">Catálogo</h1>
+          <p className="text-xs text-gray-400 mt-0.5">
+            Toca "Registrar venta" en el plan que vendiste para registrarlo en Clientes
+          </p>
         </div>
+        <button
+          onClick={() => setFiltersOpen(v => !v)}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border
+                     border-gray-200 text-sm shadow-sm md:hidden shrink-0"
+          style={activeOp ? { borderColor: activeOp.brand_color, color: activeOp.brand_color } : { color: '#6B7280' }}
+        >
+          <span>🔽</span>
+          <span>{activeOp?.name ?? 'Filtrar'}</span>
+        </button>
       </div>
 
       {/* Chips de filtro — scroll horizontal en mobile */}
@@ -294,7 +290,15 @@ export default function SellerCatalog() {
               key={`${operator.id}-${plan.id}`}
               plan={plan}
               operator={operator}
-              onVender={() => navigate(`/equipo/nueva-venta?planId=${plan.id}&operatorId=${operator.id}`)}
+              onVender={() => navigate('/equipo/clientes', {
+                state: {
+                  newClient:    true,
+                  operatorId:   operator.id,
+                  planId:       plan.id,
+                  regularPrice: extractRegularPrice(plan.features ?? []) ?? parseFloat(plan.price),
+                  commissionPct: parseFloat(operator.commission_pct ?? 0),
+                },
+              })}
             />
           ))}
         </div>
@@ -313,7 +317,15 @@ export default function SellerCatalog() {
                       key={`${operator.id}-${plan.id}`}
                       plan={plan}
                       operator={operator}
-                      onVender={() => navigate(`/equipo/nueva-venta?planId=${plan.id}&operatorId=${operator.id}`)}
+                      onVender={() => navigate('/equipo/clientes', {
+                state: {
+                  newClient:    true,
+                  operatorId:   operator.id,
+                  planId:       plan.id,
+                  regularPrice: extractRegularPrice(plan.features ?? []) ?? parseFloat(plan.price),
+                  commissionPct: parseFloat(operator.commission_pct ?? 0),
+                },
+              })}
                     />
                   ))}
                 </div>

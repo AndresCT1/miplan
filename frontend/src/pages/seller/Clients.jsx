@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { sellerService } from '../../services/api'
 
 function extractRegularPrice(features = []) {
@@ -16,10 +17,16 @@ function formatDate(val) {
 }
 
 // ── Modal: Nuevo cliente ──────────────────────────────────────────────────────
-function NewClientModal({ catalog, onClose, onCreated }) {
+function NewClientModal({ catalog, onClose, onCreated, initialValues }) {
   const [form, setForm] = useState({
-    clientName: '', clientPhone: '', operatorId: '', planId: '',
-    regularPrice: '', commissionPct: '', installationDate: '', notes: '',
+    clientName:       '',
+    clientPhone:      '',
+    operatorId:       initialValues?.operatorId   ? String(initialValues.operatorId)             : '',
+    planId:           initialValues?.planId        ? String(initialValues.planId)                 : '',
+    regularPrice:     initialValues?.regularPrice  ? String(initialValues.regularPrice.toFixed(2)): '',
+    commissionPct:    initialValues?.commissionPct ? String(initialValues.commissionPct)          : '',
+    installationDate: '',
+    notes:            '',
   })
   const [loading, setLoading] = useState(false)
   const [error,   setError]   = useState('')
@@ -174,15 +181,19 @@ function NewClientModal({ catalog, onClose, onCreated }) {
 
 // ── Página principal ──────────────────────────────────────────────────────────
 export default function Clients() {
-  const [view,       setView]       = useState('clients') // 'clients' | 'payments'
-  const [clients,    setClients]    = useState([])
-  const [total,      setTotal]      = useState(0)
-  const [loading,    setLoading]    = useState(true)
-  const [error,      setError]      = useState(null)
-  const [catalog,    setCatalog]    = useState([])
-  const [showModal,  setShowModal]  = useState(false)
-  const [editNotes,  setEditNotes]  = useState(null)
-  const [filters,    setFilters]    = useState({ status: '', page: 1 })
+  const location  = useLocation()
+  const navigate  = useNavigate()
+
+  const [view,            setView]            = useState('clients')
+  const [clients,         setClients]         = useState([])
+  const [total,           setTotal]           = useState(0)
+  const [loading,         setLoading]         = useState(true)
+  const [error,           setError]           = useState(null)
+  const [catalog,         setCatalog]         = useState([])
+  const [showModal,       setShowModal]       = useState(false)
+  const [modalInitValues, setModalInitValues] = useState(null)
+  const [editNotes,       setEditNotes]       = useState(null)
+  const [filters,         setFilters]         = useState({ status: '', page: 1 })
   // E — Pagos
   const [payments,      setPayments]      = useState([])
   const [totalCobrado,  setTotalCobrado]  = useState(0)
@@ -206,6 +217,17 @@ export default function Clients() {
   }, [filters])
 
   useEffect(() => { fetchClients() }, [fetchClients])
+
+  // Detecta navegación desde Catálogo con plan pre-seleccionado
+  useEffect(() => {
+    if (location.state?.newClient) {
+      const { operatorId, planId, regularPrice, commissionPct } = location.state
+      setModalInitValues({ operatorId, planId, regularPrice, commissionPct })
+      setShowModal(true)
+      // Limpia el state para que no se reabra al navegar de vuelta
+      navigate(location.pathname, { replace: true, state: {} })
+    }
+  }, [location.state])
 
   const handleSaveNotes = async (clientId, notes) => {
     try {
@@ -425,7 +447,8 @@ export default function Clients() {
       {showModal && (
         <NewClientModal
           catalog={catalog}
-          onClose={() => setShowModal(false)}
+          initialValues={modalInitValues}
+          onClose={() => { setShowModal(false); setModalInitValues(null) }}
           onCreated={c => setClients(prev => [c, ...prev])}
         />
       )}

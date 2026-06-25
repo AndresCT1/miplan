@@ -13,27 +13,53 @@ const pool = new Pool({
 })
 
 const migrationsDir = join(__dirname, 'migrations')
+
+// ── Tabla de tracking — garantiza que cada migración corre UNA sola vez ──────
+await pool.query(`
+  CREATE TABLE IF NOT EXISTS _migrations (
+    id         SERIAL PRIMARY KEY,
+    filename   VARCHAR(200) UNIQUE NOT NULL,
+    applied_at TIMESTAMPTZ DEFAULT NOW()
+  )
+`)
+
+// Migraciones ya aplicadas
+const { rows: applied } = await pool.query('SELECT filename FROM _migrations')
+const appliedSet = new Set(applied.map(r => r.filename))
+
 const files = readdirSync(migrationsDir)
-  .filter((f) => f.endsWith('.sql'))
+  .filter(f => f.endsWith('.sql'))
   .sort()
 
-console.log(`\n🗄️  Ejecutando ${files.length} migraciones contra Neon.tech...\n`)
+const pending = files.filter(f => !appliedSet.has(f))
 
-for (const file of files) {
+if (pending.length === 0) {
+  console.log('\n✅ No hay migraciones nuevas. BD al día.\n')
+  await pool.end()
+  process.exit(0)
+}
+
+console.log(`\n🗄️  Aplicando ${pending.length} migración(es) nuevas...\n`)
+
+for (const file of pending) {
   const sql = readFileSync(join(migrationsDir, file), 'utf8')
+  const client = await pool.connect()
   try {
-    await pool.query(sql)
+    await client.query('BEGIN')
+    await client.query(sql)
+    await client.query('INSERT INTO _migrations (filename) VALUES ($1)', [file])
+    await client.query('COMMIT')
     console.log(`  ✅ ${file}`)
   } catch (err) {
-    if (err.code === '42P07') {
-      console.log(`  ⚠️  ${file} — tabla ya existe, ignorando`)
-    } else {
-      console.error(`  ❌ ${file} — ${err.message}`)
-      await pool.end()
-      process.exit(1)
-    }
+    await client.query('ROLLBACK')
+    console.error(`  ❌ ${file} — ${err.message}`)
+    client.release()
+    await pool.end()
+    process.exit(1)
+  } finally {
+    client.release()
   }
 }
 
 await pool.end()
-console.log('\n✅ Migraciones completadas.\n')
+console.log(`\n✅ ${pending.length} migración(es) aplicadas correctamente.\n`)
